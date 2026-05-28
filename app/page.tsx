@@ -1,4 +1,10 @@
-import { latestResults, leagueStats, type ResultStatus } from "@/lib/mock-results";
+import StatCard from "@/components/dashboard/stat-card";
+import ResultBadge from "@/components/dashboard/result-badge";
+
+import {
+  latestResults,
+  leagueStats,
+} from "@/lib/mock-results";
 
 export default function Home() {
   return (
@@ -10,9 +16,11 @@ export default function Home() {
               <p className="mb-3 text-sm font-semibold uppercase tracking-[0.3em] text-emerald-400">
                 Pro Football Intel Results
               </p>
+
               <h1 className="max-w-3xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
                 Verified prediction performance dashboard.
               </h1>
+
               <p className="mt-5 max-w-2xl text-base leading-7 text-zinc-400 sm:text-lg">
                 Public read-only results, accuracy tracking and recent pick
                 outcomes for Pro Football Intel.
@@ -23,6 +31,7 @@ export default function Home() {
               <label className="mb-2 block text-xs font-medium uppercase tracking-widest text-zinc-500">
                 Season
               </label>
+
               <select className="w-full rounded-xl border border-white/10 bg-black px-4 py-3 text-sm font-semibold text-white outline-none">
                 <option>2026/27 Mock Season</option>
                 <option>2025/26 Archive</option>
@@ -32,10 +41,29 @@ export default function Home() {
         </header>
 
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Overall Accuracy" value="68%" detail="46 won / 22 lost" />
-          <StatCard label="Won" value="46" detail="Settled winning picks" />
-          <StatCard label="Lost" value="22" detail="Settled losing picks" />
-          <StatCard label="Pending" value="8" detail="Awaiting final scores" />
+          <StatCard
+            label="Overall Accuracy"
+            value="68%"
+            detail="46 won / 22 lost"
+          />
+
+          <StatCard
+            label="Won"
+            value="46"
+            detail="Settled winning picks"
+          />
+
+          <StatCard
+            label="Lost"
+            value="22"
+            detail="Settled losing picks"
+          />
+
+          <StatCard
+            label="Pending"
+            value="8"
+            detail="Awaiting final scores"
+          />
         </section>
 
         <section className="grid gap-6 lg:grid-cols-3">
@@ -45,9 +73,15 @@ export default function Home() {
                 <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-400">
                   League Accuracy
                 </p>
-                <h2 className="mt-2 text-2xl font-bold">Breakdown by league</h2>
+
+                <h2 className="mt-2 text-2xl font-bold">
+                  Breakdown by league
+                </h2>
               </div>
-              <p className="text-sm text-zinc-500">Mock data preview</p>
+
+              <p className="text-sm text-zinc-500">
+                Mock data preview
+              </p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -56,11 +90,17 @@ export default function Home() {
                   key={item.league}
                   className="rounded-2xl border border-white/10 bg-black/60 p-5"
                 >
-                  <p className="text-sm text-zinc-400">{item.league}</p>
+                  <p className="text-sm text-zinc-400">
+                    {item.league}
+                  </p>
+
                   <p className="mt-3 text-3xl font-bold text-white">
                     {item.accuracy}
                   </p>
-                  <p className="mt-2 text-sm text-zinc-500">{item.record}</p>
+
+                  <p className="mt-2 text-sm text-zinc-500">
+                    {item.record}
+                  </p>
                 </div>
               ))}
             </div>
@@ -70,14 +110,27 @@ export default function Home() {
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-300">
               Strongest Pick
             </p>
-            <h2 className="mt-4 text-2xl font-bold">Highest-confidence picks</h2>
-            <p className="mt-6 text-5xl font-bold text-emerald-300">74%</p>
+
+            <h2 className="mt-4 text-2xl font-bold">
+              Highest-confidence picks
+            </h2>
+
+            <p className="mt-6 text-5xl font-bold text-emerald-300">
+              74%
+            </p>
+
             <p className="mt-3 text-sm leading-6 text-zinc-300">
               Mock accuracy for picks marked as strongest confidence.
             </p>
+
             <div className="mt-6 rounded-2xl border border-white/10 bg-black/40 p-4">
-              <p className="text-sm text-zinc-400">Record</p>
-              <p className="mt-1 text-xl font-semibold">23W / 8L</p>
+              <p className="text-sm text-zinc-400">
+                Record
+              </p>
+
+              <p className="mt-1 text-xl font-semibold">
+                23W / 8L
+              </p>
             </div>
           </div>
         </section>
@@ -87,7 +140,10 @@ export default function Home() {
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-emerald-400">
               Latest Results
             </p>
-            <h2 className="mt-2 text-2xl font-bold">Recent settled picks</h2>
+
+            <h2 className="mt-2 text-2xl font-bold">
+              Recent settled picks
+            </h2>
           </div>
 
           <div className="overflow-hidden rounded-2xl border border-white/10">
@@ -108,53 +164,31 @@ export default function Home() {
                 <div className="font-semibold">
                   {match.home} vs {match.away}
                 </div>
-                <div className="text-zinc-400">{match.league}</div>
-                <div className="text-zinc-300">{match.pick}</div>
-                <div className="text-zinc-400">{match.score}</div>
+
+                <div className="text-zinc-400">
+                  {match.league}
+                </div>
+
+                <div className="text-zinc-300">
+                  {match.pick}
+                </div>
+
+                <div className="text-zinc-400">
+                  {match.score}
+                </div>
+
                 <div>
                   <ResultBadge result={match.result} />
                 </div>
-                <div className="text-zinc-500">Manual review</div>
+
+                <div className="text-zinc-500">
+                  Manual review
+                </div>
               </div>
             ))}
           </div>
         </section>
       </section>
     </main>
-  );
-}
-
-function StatCard({
-  label,
-  value,
-  detail,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-}) {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-zinc-950 p-6 shadow-xl">
-      <p className="text-sm font-medium text-zinc-400">{label}</p>
-      <p className="mt-4 text-4xl font-bold">{value}</p>
-      <p className="mt-2 text-sm text-zinc-500">{detail}</p>
-    </div>
-  );
-}
-
-function ResultBadge({ result }: { result: ResultStatus }) {
-  const className =
-    result === "WON"
-      ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
-      : result === "LOST"
-        ? "border-red-400/20 bg-red-400/10 text-red-300"
-        : "border-yellow-400/20 bg-yellow-400/10 text-yellow-300";
-
-  return (
-    <span
-      className={`inline-flex rounded-full border px-3 py-1 text-xs font-bold ${className}`}
-    >
-      {result}
-    </span>
   );
 }
