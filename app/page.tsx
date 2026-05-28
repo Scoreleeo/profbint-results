@@ -1,10 +1,7 @@
 import StatCard from "@/components/dashboard/stat-card";
 import ResultBadge from "@/components/dashboard/result-badge";
 
-import {
-  latestResults,
-  leagueStats,
-} from "@/lib/mock-results";
+import { latestResults, leagueStats } from "@/lib/mock-results";
 
 export default function Home() {
   return (
@@ -47,23 +44,11 @@ export default function Home() {
             detail="46 won / 22 lost"
           />
 
-          <StatCard
-            label="Won"
-            value="46"
-            detail="Settled winning picks"
-          />
+          <StatCard label="Won" value="46" detail="Settled winning picks" />
 
-          <StatCard
-            label="Lost"
-            value="22"
-            detail="Settled losing picks"
-          />
+          <StatCard label="Lost" value="22" detail="Settled losing picks" />
 
-          <StatCard
-            label="Pending"
-            value="8"
-            detail="Awaiting final scores"
-          />
+          <StatCard label="Pending" value="8" detail="Awaiting final scores" />
         </section>
 
         <section className="grid gap-6 lg:grid-cols-3">
@@ -79,9 +64,7 @@ export default function Home() {
                 </h2>
               </div>
 
-              <p className="text-sm text-zinc-500">
-                Mock data preview
-              </p>
+              <p className="text-sm text-zinc-500">Mock data preview</p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -90,17 +73,13 @@ export default function Home() {
                   key={item.league}
                   className="rounded-2xl border border-white/10 bg-black/60 p-5"
                 >
-                  <p className="text-sm text-zinc-400">
-                    {item.league}
-                  </p>
+                  <p className="text-sm text-zinc-400">{item.league}</p>
 
                   <p className="mt-3 text-3xl font-bold text-white">
                     {item.accuracy}
                   </p>
 
-                  <p className="mt-2 text-sm text-zinc-500">
-                    {item.record}
-                  </p>
+                  <p className="mt-2 text-sm text-zinc-500">{item.record}</p>
                 </div>
               ))}
             </div>
@@ -115,22 +94,16 @@ export default function Home() {
               Highest-confidence picks
             </h2>
 
-            <p className="mt-6 text-5xl font-bold text-emerald-300">
-              74%
-            </p>
+            <p className="mt-6 text-5xl font-bold text-emerald-300">74%</p>
 
             <p className="mt-3 text-sm leading-6 text-zinc-300">
               Mock accuracy for picks marked as strongest confidence.
             </p>
 
             <div className="mt-6 rounded-2xl border border-white/10 bg-black/40 p-4">
-              <p className="text-sm text-zinc-400">
-                Record
-              </p>
+              <p className="text-sm text-zinc-400">Record</p>
 
-              <p className="mt-1 text-xl font-semibold">
-                23W / 8L
-              </p>
+              <p className="mt-1 text-xl font-semibold">23W / 8L</p>
             </div>
           </div>
         </section>
@@ -141,13 +114,60 @@ export default function Home() {
               Latest Results
             </p>
 
-            <h2 className="mt-2 text-2xl font-bold">
-              Recent settled picks
-            </h2>
+            <h2 className="mt-2 text-2xl font-bold">Recent settled picks</h2>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-white/10">
-            <div className="hidden grid-cols-6 bg-white/5 px-5 py-3 text-xs font-semibold uppercase tracking-widest text-zinc-500 md:grid">
+          <div className="space-y-4 md:hidden">
+            {latestResults.map((match) => (
+              <article
+                key={`${match.home}-${match.away}-mobile`}
+                className="rounded-2xl border border-white/10 bg-black/50 p-4"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-base font-semibold text-white">
+                      {match.home} vs {match.away}
+                    </p>
+
+                    <p className="mt-1 text-sm text-zinc-500">
+                      {match.league}
+                    </p>
+                  </div>
+
+                  <ResultBadge result={match.result} />
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p className="text-xs uppercase tracking-widest text-zinc-500">
+                      Pick
+                    </p>
+
+                    <p className="mt-1 font-semibold text-zinc-200">
+                      {match.pick}
+                    </p>
+                  </div>
+
+                  <div className="rounded-xl border border-white/10 bg-white/5 p-3">
+                    <p className="text-xs uppercase tracking-widest text-zinc-500">
+                      Score
+                    </p>
+
+                    <p className="mt-1 font-semibold text-zinc-200">
+                      {match.score}
+                    </p>
+                  </div>
+                </div>
+
+                <p className="mt-4 text-xs text-zinc-500">
+                  Verified by manual review
+                </p>
+              </article>
+            ))}
+          </div>
+
+          <div className="hidden overflow-hidden rounded-2xl border border-white/10 md:block">
+            <div className="grid grid-cols-6 bg-white/5 px-5 py-3 text-xs font-semibold uppercase tracking-widest text-zinc-500">
               <span>Match</span>
               <span>League</span>
               <span>Pick</span>
@@ -159,31 +179,23 @@ export default function Home() {
             {latestResults.map((match) => (
               <div
                 key={`${match.home}-${match.away}`}
-                className="grid gap-3 border-t border-white/10 px-5 py-5 text-sm md:grid-cols-6 md:items-center"
+                className="grid grid-cols-6 items-center gap-3 border-t border-white/10 px-5 py-5 text-sm"
               >
                 <div className="font-semibold">
                   {match.home} vs {match.away}
                 </div>
 
-                <div className="text-zinc-400">
-                  {match.league}
-                </div>
+                <div className="text-zinc-400">{match.league}</div>
 
-                <div className="text-zinc-300">
-                  {match.pick}
-                </div>
+                <div className="text-zinc-300">{match.pick}</div>
 
-                <div className="text-zinc-400">
-                  {match.score}
-                </div>
+                <div className="text-zinc-400">{match.score}</div>
 
                 <div>
                   <ResultBadge result={match.result} />
                 </div>
 
-                <div className="text-zinc-500">
-                  Manual review
-                </div>
+                <div className="text-zinc-500">Manual review</div>
               </div>
             ))}
           </div>
