@@ -1,44 +1,4 @@
-const results = [
-  {
-    home: "Arsenal",
-    away: "Chelsea",
-    league: "Premier League",
-    pick: "Arsenal Win",
-    score: "2-1",
-    result: "WON",
-  },
-  {
-    home: "Barcelona",
-    away: "Sevilla",
-    league: "La Liga",
-    pick: "Over 2.5 Goals",
-    score: "3-1",
-    result: "WON",
-  },
-  {
-    home: "Inter",
-    away: "Napoli",
-    league: "Serie A",
-    pick: "Inter Draw No Bet",
-    score: "1-1",
-    result: "LOST",
-  },
-  {
-    home: "PSG",
-    away: "Lyon",
-    league: "Ligue 1",
-    pick: "PSG Win",
-    score: "Pending",
-    result: "PENDING",
-  },
-];
-
-const leagueStats = [
-  { league: "Premier League", accuracy: "72%", record: "18W / 7L" },
-  { league: "La Liga", accuracy: "69%", record: "11W / 5L" },
-  { league: "Serie A", accuracy: "64%", record: "9W / 5L" },
-  { league: "Bundesliga", accuracy: "67%", record: "8W / 4L" },
-];
+import { latestResults, leagueStats, type ResultStatus } from "@/lib/mock-results";
 
 export default function Home() {
   return (
@@ -140,7 +100,7 @@ export default function Home() {
               <span>Verified</span>
             </div>
 
-            {results.map((match) => (
+            {latestResults.map((match) => (
               <div
                 key={`${match.home}-${match.away}`}
                 className="grid gap-3 border-t border-white/10 px-5 py-5 text-sm md:grid-cols-6 md:items-center"
@@ -182,13 +142,13 @@ function StatCard({
   );
 }
 
-function ResultBadge({ result }: { result: string }) {
+function ResultBadge({ result }: { result: ResultStatus }) {
   const className =
     result === "WON"
-      ? "bg-emerald-400/10 text-emerald-300 border-emerald-400/20"
+      ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
       : result === "LOST"
-        ? "bg-red-400/10 text-red-300 border-red-400/20"
-        : "bg-yellow-400/10 text-yellow-300 border-yellow-400/20";
+        ? "border-red-400/20 bg-red-400/10 text-red-300"
+        : "border-yellow-400/20 bg-yellow-400/10 text-yellow-300";
 
   return (
     <span
