@@ -44,59 +44,60 @@ type PredictionHistoryRow = {
   savedAt: Date;
 };
 
-const DEFAULT_SEASON = "2025/26";
+const FALLBACK_SEASON = "2025/26";
 
 export async function getResultsDashboardData(
-  season = DEFAULT_SEASON,
+  requestedSeason?: string,
 ): Promise<ResultsDashboardData> {
   try {
-    const [seasonRows, rows] = await Promise.all([
-      prisma.predictionHistory.findMany({
-        select: {
-          season: true,
-        },
-        distinct: ["season"],
-        orderBy: {
-          season: "desc",
-        },
-      }),
+    const seasonRows = await prisma.predictionHistory.findMany({
+      select: {
+        season: true,
+      },
+      distinct: ["season"],
+      orderBy: {
+        season: "desc",
+      },
+    });
 
-      prisma.predictionHistory.findMany({
-        where: {
-          season,
-        },
-        select: {
-          leagueName: true,
-          season: true,
-          homeTeam: true,
-          awayTeam: true,
-          firstChoice: true,
-          secondChoice: true,
-          strongestPick: true,
-          actualResult: true,
-          firstChoiceResult: true,
-          secondChoiceResult: true,
-          status: true,
-          savedAt: true,
-        },
-        orderBy: {
-          savedAt: "desc",
-        },
-        take: 250,
-      }),
-    ]);
+    const seasons = seasonRows.map((item) => item.season).filter(Boolean);
 
-    const seasons = seasonRows
-      .map((item) => item.season)
-      .filter(Boolean);
+    const selectedSeason =
+      requestedSeason && seasons.includes(requestedSeason)
+        ? requestedSeason
+        : seasons[0] ?? FALLBACK_SEASON;
+
+    const rows = await prisma.predictionHistory.findMany({
+      where: {
+        season: selectedSeason,
+      },
+      select: {
+        leagueName: true,
+        season: true,
+        homeTeam: true,
+        awayTeam: true,
+        firstChoice: true,
+        secondChoice: true,
+        strongestPick: true,
+        actualResult: true,
+        firstChoiceResult: true,
+        secondChoiceResult: true,
+        status: true,
+        savedAt: true,
+      },
+      orderBy: {
+        savedAt: "desc",
+      },
+      take: 250,
+    });
 
     if (rows.length === 0) {
-      return getFallbackDashboardData(seasons, season);
+      return getFallbackDashboardData(seasons, selectedSeason);
     }
 
     return {
-      selectedSeason: season,
-      seasons: seasons.length > 0 ? seasons : [season],
+      selectedSeason,
+      seasons: seasons.length > 0 ? seasons : [selectedSeason],
       summaryStats: buildSummaryStats(rows),
       leagueStats: buildLeagueStats(rows),
       latestResults: buildLatestResults(rows),
@@ -105,7 +106,7 @@ export async function getResultsDashboardData(
   } catch (error) {
     console.error("Failed to load results dashboard data:", error);
 
-    return getFallbackDashboardData([season], season);
+    return getFallbackDashboardData([FALLBACK_SEASON], FALLBACK_SEASON);
   }
 }
 

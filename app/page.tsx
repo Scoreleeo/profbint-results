@@ -1,33 +1,20 @@
-import { latestResults, leagueStats, type ResultStatus } from "@/lib/mock-results";
+import {
+  getResultsDashboardData,
+  type SummaryStat,
+} from "@/lib/results-data";
 
-const summaryStats = [
-  {
-    label: "Overall Accuracy",
-    value: "68%",
-    detail: "46 won / 22 lost",
-    tone: "emerald",
-  },
-  {
-    label: "Won",
-    value: "46",
-    detail: "Winning picks",
-    tone: "emerald",
-  },
-  {
-    label: "Lost",
-    value: "22",
-    detail: "Losing picks",
-    tone: "red",
-  },
-  {
-    label: "Pending",
-    value: "8",
-    detail: "Awaiting scores",
-    tone: "amber",
-  },
-];
+import type { ResultStatus } from "@/lib/mock-results";
 
-export default function Home() {
+type PageProps = {
+  searchParams?: Promise<{
+    season?: string;
+  }>;
+};
+
+export default async function Home({ searchParams }: PageProps) {
+  const params = await searchParams;
+  const data = await getResultsDashboardData(params?.season);
+
   return (
     <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.16),transparent_24rem),radial-gradient(circle_at_top_right,rgba(59,130,246,0.14),transparent_26rem),linear-gradient(180deg,#071827_0%,#06111f_44%,#030712_100%)] text-white">
       <section className="mx-auto flex w-full max-w-[430px] flex-col gap-4 px-3 pb-32 pt-4 sm:max-w-7xl sm:gap-6 sm:px-8 sm:pb-16 sm:pt-6 lg:px-10">
@@ -51,21 +38,44 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-inner shadow-white/5 backdrop-blur xl:max-w-[280px]">
-              <label className="mb-2 block text-[0.65rem] font-bold uppercase tracking-[0.22em] text-slate-400 sm:text-xs">
+            <form
+              method="GET"
+              className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-inner shadow-white/5 backdrop-blur xl:max-w-[280px]"
+            >
+              <label
+                htmlFor="season"
+                className="mb-2 block text-[0.65rem] font-bold uppercase tracking-[0.22em] text-slate-400 sm:text-xs"
+              >
                 Season
               </label>
 
-              <select className="w-full rounded-xl border border-white/10 bg-[#06111f] px-3 py-2.5 text-sm font-semibold text-white outline-none ring-0 transition focus:border-emerald-400/40">
-                <option>2026/27 Mock Season</option>
-                <option>2025/26 Archive</option>
-              </select>
-            </div>
+              <div className="grid grid-cols-[1fr_auto] gap-2">
+                <select
+                  id="season"
+                  name="season"
+                  defaultValue={data.selectedSeason}
+                  className="min-w-0 rounded-xl border border-white/10 bg-[#06111f] px-3 py-2.5 text-sm font-semibold text-white outline-none ring-0 transition focus:border-emerald-400/40"
+                >
+                  {data.seasons.map((season) => (
+                    <option key={season} value={season}>
+                      {season}
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  type="submit"
+                  className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-black uppercase tracking-wide text-emerald-300 transition hover:border-emerald-300/40 hover:bg-emerald-400/15"
+                >
+                  View
+                </button>
+              </div>
+            </form>
           </div>
         </header>
 
         <section className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-          {summaryStats.map((stat) => (
+          {data.summaryStats.map((stat) => (
             <MetricCard
               key={stat.label}
               label={stat.label}
@@ -81,11 +91,11 @@ export default function Home() {
             <SectionHeader
               eyebrow="League Accuracy"
               title="Breakdown by league"
-              note="Mock data preview"
+              note={data.selectedSeason}
             />
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              {leagueStats.map((item) => (
+              {data.leagueStats.map((item) => (
                 <div
                   key={item.league}
                   className="group rounded-2xl border border-white/10 bg-[#061320]/90 p-3.5 shadow-[0_12px_34px_rgba(0,0,0,0.22)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/25 hover:bg-[#071b2d] sm:p-5"
@@ -121,12 +131,12 @@ export default function Home() {
                   </h2>
 
                   <p className="mt-2 max-w-[13rem] text-sm leading-6 text-slate-300 sm:mt-3 sm:max-w-none">
-                    Mock accuracy for strongest confidence picks.
+                    Live accuracy for strongest confidence picks.
                   </p>
                 </div>
 
                 <p className="text-[2.85rem] font-black leading-none tracking-tight text-emerald-300 sm:mt-6 sm:text-5xl">
-                  74%
+                  {data.strongestPick.accuracy}
                 </p>
               </div>
 
@@ -134,7 +144,7 @@ export default function Home() {
                 <div className="flex items-center justify-between gap-4">
                   <p className="text-sm font-medium text-slate-400">Record</p>
                   <p className="text-lg font-black text-white sm:text-xl">
-                    23W / 8L
+                    {data.strongestPick.record}
                   </p>
                 </div>
               </div>
@@ -146,9 +156,9 @@ export default function Home() {
           <SectionHeader eyebrow="Latest Results" title="Recent settled picks" />
 
           <div className="space-y-2.5 md:hidden">
-            {latestResults.map((match) => (
+            {data.latestResults.map((match) => (
               <article
-                key={`${match.home}-${match.away}-mobile`}
+                key={`${match.home}-${match.away}-${match.pick}-mobile`}
                 className="rounded-2xl border border-white/10 bg-[#061320]/95 p-3.5 shadow-[0_10px_32px_rgba(0,0,0,0.24)]"
               >
                 <div className="flex items-start justify-between gap-3">
@@ -206,9 +216,9 @@ export default function Home() {
               <span>Verified</span>
             </div>
 
-            {latestResults.map((match) => (
+            {data.latestResults.map((match) => (
               <div
-                key={`${match.home}-${match.away}`}
+                key={`${match.home}-${match.away}-${match.pick}`}
                 className="grid grid-cols-6 items-center gap-3 border-t border-white/10 px-5 py-5 text-sm transition hover:bg-white/[0.035]"
               >
                 <div className="font-semibold">
@@ -240,12 +250,7 @@ function MetricCard({
   value,
   detail,
   tone,
-}: {
-  label: string;
-  value: string;
-  detail: string;
-  tone: string;
-}) {
+}: SummaryStat) {
   const glow =
     tone === "emerald"
       ? "from-emerald-400/14"
