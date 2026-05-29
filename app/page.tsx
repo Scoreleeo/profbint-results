@@ -35,23 +35,23 @@ export default function Home() {
           <div className="pointer-events-none absolute -right-20 -top-20 h-44 w-44 rounded-full bg-emerald-400/14 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 left-8 h-44 w-44 rounded-full bg-blue-500/10 blur-3xl" />
 
-          <div className="relative grid gap-4 lg:grid-cols-[1fr_280px] lg:items-end">
-            <div>
+          <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px] xl:items-end">
+            <div className="min-w-0">
               <p className="mb-2 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-emerald-400 sm:text-xs sm:tracking-[0.28em]">
                 Pro Football Intel Results
               </p>
 
-              <h1 className="max-w-2xl text-[1.72rem] font-black leading-[1.06] tracking-[-0.04em] text-white sm:text-[2.25rem] lg:text-[2.75rem]">
-                Verified football prediction results.
+              <h1 className="max-w-none text-[1.72rem] font-black leading-[1.06] tracking-[-0.04em] text-white sm:text-[2.1rem] md:text-[2.35rem] lg:text-[2.55rem] xl:whitespace-nowrap">
+                Prediction results dashboard.
               </h1>
 
-              <p className="mt-2.5 max-w-2xl text-sm leading-6 text-slate-300/85 sm:mt-3 sm:text-base sm:leading-7">
+              <p className="mt-2.5 max-w-3xl text-sm leading-6 text-slate-300/85 sm:mt-3 sm:text-base sm:leading-7">
                 Public read-only performance dashboard tracking accuracy,
                 settled picks and latest Pro Football Intel results.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-inner shadow-white/5 backdrop-blur lg:max-w-[280px]">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-inner shadow-white/5 backdrop-blur xl:max-w-[280px]">
               <label className="mb-2 block text-[0.65rem] font-bold uppercase tracking-[0.22em] text-slate-400 sm:text-xs">
                 Season
               </label>
