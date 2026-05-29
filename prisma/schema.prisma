@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PredictionHistory {
+  id                 Int      @id @default(autoincrement())
+
+  fixtureId          Int?
+  leagueId           Int?
+  leagueName         String?
+  season             String   @default("2025/26")
+
+  homeTeam           String
+  awayTeam           String
+
+  kickoff            DateTime?
+
+  firstChoice        String?
+  secondChoice       String?
+
+  homeWinPercent     Float?
+  drawPercent        Float?
+  awayWinPercent     Float?
+
+  strongestPick      String?
+  strongestPercent   Float?
+
+  actualResult       String?
+  firstChoiceResult  String?
+  secondChoiceResult String?
+  status             String   @default("PENDING")
+
+  savedAt            DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([fixtureId])
+  @@index([leagueId])
+  @@index([status])
+}
