@@ -30,33 +30,33 @@ const summaryStats = [
 export default function Home() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.16),transparent_24rem),radial-gradient(circle_at_top_right,rgba(59,130,246,0.14),transparent_26rem),linear-gradient(180deg,#071827_0%,#06111f_44%,#030712_100%)] text-white">
-      <section className="mx-auto flex w-full max-w-[430px] flex-col gap-4 px-3 pb-32 pt-4 sm:max-w-7xl sm:gap-8 sm:px-8 sm:pb-16 sm:pt-8 lg:px-10">
-        <header className="relative overflow-hidden rounded-[26px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,38,66,0.96),rgba(7,20,36,0.98)_48%,rgba(3,7,18,0.98))] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.45)] sm:rounded-3xl sm:p-10">
-          <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-emerald-400/15 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 left-8 h-52 w-52 rounded-full bg-blue-500/10 blur-3xl" />
+      <section className="mx-auto flex w-full max-w-[430px] flex-col gap-4 px-3 pb-32 pt-4 sm:max-w-7xl sm:gap-6 sm:px-8 sm:pb-16 sm:pt-6 lg:px-10">
+        <header className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,38,66,0.96),rgba(7,20,36,0.98)_48%,rgba(3,7,18,0.98))] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.38)] sm:rounded-3xl sm:p-6 lg:p-7">
+          <div className="pointer-events-none absolute -right-20 -top-20 h-44 w-44 rounded-full bg-emerald-400/14 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 left-8 h-44 w-44 rounded-full bg-blue-500/10 blur-3xl" />
 
-          <div className="relative flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div className="relative grid gap-4 lg:grid-cols-[1fr_280px] lg:items-end">
             <div>
-              <p className="mb-2 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-emerald-400 sm:mb-3 sm:text-sm sm:tracking-[0.3em]">
+              <p className="mb-2 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-emerald-400 sm:text-xs sm:tracking-[0.28em]">
                 Pro Football Intel Results
               </p>
 
-              <h1 className="max-w-3xl text-[1.95rem] font-black leading-[1.04] tracking-[-0.045em] text-white sm:text-5xl lg:text-6xl">
-                Verified prediction performance dashboard.
+              <h1 className="max-w-2xl text-[1.72rem] font-black leading-[1.06] tracking-[-0.04em] text-white sm:text-[2.25rem] lg:text-[2.75rem]">
+                Verified football prediction results.
               </h1>
 
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300/85 sm:mt-5 sm:text-lg sm:leading-8">
-                Public read-only results, accuracy tracking and recent pick
-                outcomes for Pro Football Intel.
+              <p className="mt-2.5 max-w-2xl text-sm leading-6 text-slate-300/85 sm:mt-3 sm:text-base sm:leading-7">
+                Public read-only performance dashboard tracking accuracy,
+                settled picks and latest Pro Football Intel results.
               </p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-inner shadow-white/5 backdrop-blur sm:w-64 sm:p-4">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-inner shadow-white/5 backdrop-blur lg:max-w-[280px]">
               <label className="mb-2 block text-[0.65rem] font-bold uppercase tracking-[0.22em] text-slate-400 sm:text-xs">
                 Season
               </label>
 
-              <select className="w-full rounded-xl border border-white/10 bg-[#06111f] px-3 py-2.5 text-sm font-semibold text-white outline-none ring-0 transition focus:border-emerald-400/40 sm:px-4 sm:py-3">
+              <select className="w-full rounded-xl border border-white/10 bg-[#06111f] px-3 py-2.5 text-sm font-semibold text-white outline-none ring-0 transition focus:border-emerald-400/40">
                 <option>2026/27 Mock Season</option>
                 <option>2025/26 Archive</option>
               </select>
@@ -254,9 +254,7 @@ function MetricCard({
         : "from-amber-400/12";
 
   return (
-    <div
-      className={`group rounded-[22px] border border-white/10 bg-[linear-gradient(135deg,rgba(10,27,46,0.98),rgba(6,19,32,0.96))] p-3.5 shadow-[0_14px_42px_rgba(0,0,0,0.25)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/20 sm:rounded-3xl sm:p-6`}
-    >
+    <div className="group rounded-[22px] border border-white/10 bg-[linear-gradient(135deg,rgba(10,27,46,0.98),rgba(6,19,32,0.96))] p-3.5 shadow-[0_14px_42px_rgba(0,0,0,0.25)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/20 sm:rounded-3xl sm:p-6">
       <div
         className={`pointer-events-none mb-3 h-1 w-10 rounded-full bg-gradient-to-r ${glow} to-transparent`}
       />
