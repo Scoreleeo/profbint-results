@@ -1,11 +1,9 @@
 import { prisma } from "@/lib/prisma";
 
-import {
-  latestResults as mockLatestResults,
-  leagueStats as mockLeagueStats,
-  type LatestResult,
-  type LeagueStat,
-  type ResultStatus,
+import type {
+  LatestResult,
+  LeagueStat,
+  ResultStatus,
 } from "@/lib/mock-results";
 
 export type SummaryStat = {
@@ -91,10 +89,6 @@ export async function getResultsDashboardData(
       take: 250,
     });
 
-    if (rows.length === 0) {
-      return getFallbackDashboardData(seasons, selectedSeason);
-    }
-
     return {
       selectedSeason,
       seasons: seasons.length > 0 ? seasons : [selectedSeason],
@@ -106,7 +100,7 @@ export async function getResultsDashboardData(
   } catch (error) {
     console.error("Failed to load results dashboard data:", error);
 
-    return getFallbackDashboardData([FALLBACK_SEASON], FALLBACK_SEASON);
+    return getEmptyDashboardData();
   }
 }
 
@@ -149,19 +143,23 @@ function buildSummaryStats(rows: PredictionHistoryRow[]): SummaryStat[] {
 }
 
 function buildLeagueStats(rows: PredictionHistoryRow[]): LeagueStat[] {
-  const leagueMap = new Map<string, { won: number; lost: number }>();
+  const leagueMap = new Map<
+    string,
+    {
+      won: number;
+      lost: number;
+      pending: number;
+    }
+  >();
 
   rows.forEach((row) => {
     const league = row.leagueName || "Unknown League";
     const result = normalizeResult(row.status);
 
-    if (result !== "WON" && result !== "LOST") {
-      return;
-    }
-
     const current = leagueMap.get(league) ?? {
       won: 0,
       lost: 0,
+      pending: 0,
     };
 
     if (result === "WON") {
@@ -170,6 +168,10 @@ function buildLeagueStats(rows: PredictionHistoryRow[]): LeagueStat[] {
 
     if (result === "LOST") {
       current.lost += 1;
+    }
+
+    if (result === "PENDING") {
+      current.pending += 1;
     }
 
     leagueMap.set(league, current);
@@ -181,10 +183,15 @@ function buildLeagueStats(rows: PredictionHistoryRow[]): LeagueStat[] {
       const accuracy =
         settled > 0 ? Math.round((record.won / settled) * 100) : 0;
 
+      const recordText =
+        settled > 0
+          ? `${record.won}W / ${record.lost}L`
+          : `${record.pending} pending`;
+
       return {
         league,
         accuracy: `${accuracy}%`,
-        record: `${record.won}W / ${record.lost}L`,
+        record: recordText,
       };
     })
     .sort((a, b) => Number.parseInt(b.accuracy) - Number.parseInt(a.accuracy))
@@ -271,44 +278,41 @@ function normalizeText(value: string | null): string {
   return value?.trim().toLowerCase() ?? "";
 }
 
-function getFallbackDashboardData(
-  seasons: string[],
-  selectedSeason: string,
-): ResultsDashboardData {
+function getEmptyDashboardData(): ResultsDashboardData {
   return {
-    selectedSeason,
-    seasons: seasons.length > 0 ? seasons : [selectedSeason],
+    selectedSeason: FALLBACK_SEASON,
+    seasons: [FALLBACK_SEASON],
     summaryStats: [
       {
         label: "Overall Accuracy",
-        value: "68%",
-        detail: "46 won / 22 lost",
+        value: "0%",
+        detail: "0 won / 0 lost",
         tone: "emerald",
       },
       {
         label: "Won",
-        value: "46",
+        value: "0",
         detail: "Winning picks",
         tone: "emerald",
       },
       {
         label: "Lost",
-        value: "22",
+        value: "0",
         detail: "Losing picks",
         tone: "red",
       },
       {
         label: "Pending",
-        value: "8",
+        value: "0",
         detail: "Awaiting scores",
         tone: "amber",
       },
     ],
-    leagueStats: mockLeagueStats,
-    latestResults: mockLatestResults,
+    leagueStats: [],
+    latestResults: [],
     strongestPick: {
-      accuracy: "74%",
-      record: "23W / 8L",
+      accuracy: "0%",
+      record: "0W / 0L",
     },
   };
 }
