@@ -33,8 +33,8 @@ export default async function Home({ searchParams }: PageProps) {
               </h1>
 
               <p className="mt-2.5 max-w-3xl text-sm leading-6 text-slate-300/85 sm:mt-3 sm:text-base sm:leading-7">
-                Public read-only performance dashboard tracking accuracy,
-                settled picks and latest Pro Football Intel results.
+                Public read-only dashboard tracking saved predictions, pending
+                outcomes and verified Pro Football Intel performance.
               </p>
             </div>
 
@@ -89,8 +89,8 @@ export default async function Home({ searchParams }: PageProps) {
         <section className="grid gap-4 sm:gap-6 lg:grid-cols-3">
           <div className="rounded-[26px] border border-white/10 bg-[#0a1b2e]/90 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] sm:rounded-3xl sm:p-6 lg:col-span-2">
             <SectionHeader
-              eyebrow="League Accuracy"
-              title="Breakdown by league"
+              eyebrow="League Coverage"
+              title="Predictions by league"
               note={data.selectedSeason}
             />
 
@@ -131,7 +131,7 @@ export default async function Home({ searchParams }: PageProps) {
                   </h2>
 
                   <p className="mt-2 max-w-[13rem] text-sm leading-6 text-slate-300 sm:mt-3 sm:max-w-none">
-                    Live accuracy for strongest confidence picks.
+                    {data.strongestPick.note}
                   </p>
                 </div>
 
@@ -153,7 +153,11 @@ export default async function Home({ searchParams }: PageProps) {
         </section>
 
         <section className="rounded-[26px] border border-white/10 bg-[#0a1b2e]/90 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] sm:rounded-3xl sm:p-6">
-          <SectionHeader eyebrow="Latest Results" title="Recent settled picks" />
+          <SectionHeader
+            eyebrow="Latest Predictions"
+            title="Live saved picks"
+            note="Results update after settlement"
+          />
 
           <div className="space-y-2.5 md:hidden">
             {data.latestResults.map((match) => (
@@ -190,7 +194,7 @@ export default async function Home({ searchParams }: PageProps) {
 
                   <div className="text-right">
                     <p className="text-[0.62rem] font-black uppercase tracking-[0.18em] text-slate-500">
-                      Score
+                      Result
                     </p>
 
                     <p className="mt-1 text-sm font-bold text-slate-100">
@@ -200,7 +204,7 @@ export default async function Home({ searchParams }: PageProps) {
                 </div>
 
                 <p className="mt-2 text-[0.7rem] font-medium text-slate-600">
-                  Verified by manual review
+                  Verified after match settlement
                 </p>
               </article>
             ))}
@@ -211,7 +215,7 @@ export default async function Home({ searchParams }: PageProps) {
               <span>Match</span>
               <span>League</span>
               <span>Pick</span>
-              <span>Score</span>
+              <span>Result</span>
               <span>Status</span>
               <span>Verified</span>
             </div>
@@ -235,7 +239,7 @@ export default async function Home({ searchParams }: PageProps) {
                   <ResultPill result={match.result} />
                 </div>
 
-                <div className="text-slate-500">Manual review</div>
+                <div className="text-slate-500">After settlement</div>
               </div>
             ))}
           </div>
