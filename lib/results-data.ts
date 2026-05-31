@@ -44,7 +44,7 @@ type PredictionHistoryRow = {
   updatedAt: Date;
 };
 
-const FALLBACK_SEASON = "2025-26";
+const FALLBACK_SEASON = "2025/26";
 
 export async function getResultsDashboardData(
   requestedSeason?: string,
