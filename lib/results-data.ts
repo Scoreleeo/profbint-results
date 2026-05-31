@@ -41,9 +41,10 @@ type PredictionHistoryRow = {
   secondChoiceResult: string | null;
   status: string;
   savedAt: Date;
+  updatedAt: Date;
 };
 
-const FALLBACK_SEASON = "2025/26";
+const FALLBACK_SEASON = "2025-26";
 
 export async function getResultsDashboardData(
   requestedSeason?: string,
@@ -83,11 +84,17 @@ export async function getResultsDashboardData(
         secondChoiceResult: true,
         status: true,
         savedAt: true,
+        updatedAt: true,
       },
-      orderBy: {
-        savedAt: "desc",
-      },
-      take: 250,
+      orderBy: [
+        {
+          updatedAt: "desc",
+        },
+        {
+          savedAt: "desc",
+        },
+      ],
+      take: 500,
     });
 
     return {
@@ -95,7 +102,7 @@ export async function getResultsDashboardData(
       seasons: seasons.length > 0 ? seasons : [selectedSeason],
       summaryStats: buildSummaryStats(rows),
       leagueStats: buildLeagueStats(rows),
-      latestResults: buildLatestPredictions(rows),
+      latestResults: buildLatestResults(rows),
       strongestPick: buildStrongestPickStat(rows),
     };
   } catch (error) {
@@ -106,23 +113,17 @@ export async function getResultsDashboardData(
 }
 
 function buildSummaryStats(rows: PredictionHistoryRow[]): SummaryStat[] {
-  const won = rows.filter((row) => normalizeResult(row.status) === "WON").length;
-  const lost = rows.filter((row) => normalizeResult(row.status) === "LOST").length;
-  const pending = rows.filter(
-    (row) => normalizeResult(row.status) === "PENDING",
-  ).length;
-
-  const settled = won + lost;
-  const accuracy = settled > 0 ? Math.round((won / settled) * 100) : 0;
+  const completed = getCompletedRows(rows);
+  const won = completed.filter((row) => row.firstChoiceResult === "WON").length;
+  const lost = completed.filter((row) => row.firstChoiceResult === "LOST").length;
+  const pending = rows.filter((row) => row.status === "PENDING").length;
+  const accuracy = getAccuracy(won, completed.length);
 
   return [
     {
       label: "Overall Accuracy",
-      value: settled > 0 ? `${accuracy}%` : "0%",
-      detail:
-        settled > 0
-          ? `${won} won / ${lost} lost`
-          : `${pending} awaiting results`,
+      value: accuracy,
+      detail: `${won} won / ${lost} lost`,
       tone: "emerald",
     },
     {
@@ -153,32 +154,30 @@ function buildLeagueStats(rows: PredictionHistoryRow[]): LeagueStat[] {
       won: number;
       lost: number;
       pending: number;
-      total: number;
+      completed: number;
     }
   >();
 
   rows.forEach((row) => {
     const league = row.leagueName || "Unknown League";
-    const result = normalizeResult(row.status);
-
     const current = leagueMap.get(league) ?? {
       won: 0,
       lost: 0,
       pending: 0,
-      total: 0,
+      completed: 0,
     };
 
-    current.total += 1;
+    if (isCompleted(row)) {
+      current.completed += 1;
 
-    if (result === "WON") {
-      current.won += 1;
-    }
+      if (row.firstChoiceResult === "WON") {
+        current.won += 1;
+      }
 
-    if (result === "LOST") {
-      current.lost += 1;
-    }
-
-    if (result === "PENDING") {
+      if (row.firstChoiceResult === "LOST") {
+        current.lost += 1;
+      }
+    } else {
       current.pending += 1;
     }
 
@@ -187,127 +186,122 @@ function buildLeagueStats(rows: PredictionHistoryRow[]): LeagueStat[] {
 
   return Array.from(leagueMap.entries())
     .map(([league, record]) => {
-      const settled = record.won + record.lost;
-      const accuracy =
-        settled > 0 ? Math.round((record.won / settled) * 100) : 0;
+      const accuracy = getAccuracy(record.won, record.completed);
 
       return {
         league,
-        accuracy: settled > 0 ? `${accuracy}%` : String(record.total),
+        accuracy,
         record:
-          settled > 0
+          record.completed > 0
             ? `${record.won}W / ${record.lost}L • ${record.pending} pending`
-            : `${record.total} predictions pending`,
+            : `${record.pending} predictions pending`,
       };
     })
     .sort((a, b) => {
-      const aNumber = Number.parseInt(a.accuracy, 10);
-      const bNumber = Number.parseInt(b.accuracy, 10);
+      const aAccuracy = Number.parseInt(a.accuracy, 10);
+      const bAccuracy = Number.parseInt(b.accuracy, 10);
 
-      return bNumber - aNumber;
+      if (bAccuracy !== aAccuracy) {
+        return bAccuracy - aAccuracy;
+      }
+
+      return getSettledCountFromRecord(b.record) - getSettledCountFromRecord(a.record);
     })
-    .slice(0, 6);
+    .slice(0, 7);
 }
 
-function buildLatestPredictions(rows: PredictionHistoryRow[]): LatestResult[] {
-  return rows.slice(0, 10).map((row) => {
-    const result = normalizeResult(row.status);
-    const pick = row.firstChoice || row.strongestPick || row.secondChoice || "Pending";
-    const score = row.actualResult || "Pending";
+function buildLatestResults(rows: PredictionHistoryRow[]): LatestResult[] {
+  const completedRows = getCompletedRows(rows);
 
+  const displayRows =
+    completedRows.length > 0
+      ? completedRows
+      : rows.filter((row) => row.status === "PENDING");
+
+  return displayRows.slice(0, 10).map((row) => {
     return {
       home: row.homeTeam,
       away: row.awayTeam,
       league: row.leagueName || "Unknown League",
-      pick,
-      score,
-      result,
+      pick: row.firstChoice || row.strongestPick || row.secondChoice || "Pending",
+      score: row.actualResult || "Pending",
+      result: getDisplayResult(row),
     };
   });
 }
 
 function buildStrongestPickStat(rows: PredictionHistoryRow[]): StrongestPickStat {
-  let won = 0;
-  let lost = 0;
-  let pending = 0;
+  const completed = rows.filter(
+    (row) =>
+      row.status === "RESULTED" &&
+      Boolean(row.actualResult) &&
+      Boolean(row.strongestPick),
+  );
 
-  rows.forEach((row) => {
-    if (!row.strongestPick) {
-      return;
-    }
+  const wins = completed.filter(
+    (row) => row.strongestPick === row.actualResult,
+  ).length;
 
-    const rowStatus = normalizeResult(row.status);
-
-    if (rowStatus === "PENDING") {
-      pending += 1;
-      return;
-    }
-
-    const strongestResult = getStrongestPickResult(row);
-
-    if (strongestResult === "WON") {
-      won += 1;
-      return;
-    }
-
-    if (strongestResult === "LOST") {
-      lost += 1;
-      return;
-    }
-  });
-
-  const settled = won + lost;
-  const accuracy = settled > 0 ? Math.round((won / settled) * 100) : 0;
+  const losses = completed.length - wins;
+  const accuracy = getAccuracy(wins, completed.length);
 
   return {
-    accuracy: settled > 0 ? `${accuracy}%` : "0%",
-    record:
-      settled > 0
-        ? `${won}W / ${lost}L`
-        : `${pending} awaiting results`,
+    accuracy,
+    record: `${wins}W / ${losses}L`,
     note:
-      settled > 0
+      completed.length > 0
         ? "Live accuracy for strongest confidence picks."
         : "Strongest pick accuracy will calculate once matches are settled.",
   };
 }
 
-function getStrongestPickResult(row: PredictionHistoryRow): ResultStatus | null {
-  const strongestPick = normalizeText(row.strongestPick);
-  const firstChoice = normalizeText(row.firstChoice);
-  const secondChoice = normalizeText(row.secondChoice);
-
-  if (!strongestPick) {
-    return null;
-  }
-
-  if (strongestPick === firstChoice) {
-    return normalizeResult(row.firstChoiceResult);
-  }
-
-  if (strongestPick === secondChoice) {
-    return normalizeResult(row.secondChoiceResult);
-  }
-
-  return normalizeResult(row.status);
+function getCompletedRows(rows: PredictionHistoryRow[]): PredictionHistoryRow[] {
+  return rows.filter(isCompleted);
 }
 
-function normalizeResult(value: string | null): ResultStatus {
-  const result = value?.trim().toUpperCase();
+function isCompleted(row: PredictionHistoryRow): boolean {
+  return (
+    row.status === "RESULTED" &&
+    Boolean(row.actualResult) &&
+    Boolean(row.firstChoiceResult)
+  );
+}
 
-  if (result === "WON") {
+function getDisplayResult(row: PredictionHistoryRow): ResultStatus {
+  if (!isCompleted(row)) {
+    return "PENDING";
+  }
+
+  if (row.firstChoiceResult === "WON") {
     return "WON";
   }
 
-  if (result === "LOST") {
+  if (row.firstChoiceResult === "LOST") {
     return "LOST";
   }
 
   return "PENDING";
 }
 
-function normalizeText(value: string | null): string {
-  return value?.trim().toLowerCase() ?? "";
+function getAccuracy(wins: number, completed: number): string {
+  if (completed === 0) {
+    return "0%";
+  }
+
+  return `${Math.round((wins / completed) * 100)}%`;
+}
+
+function getSettledCountFromRecord(record: string): number {
+  const match = record.match(/(\d+)W\s\/\s(\d+)L/);
+
+  if (!match) {
+    return 0;
+  }
+
+  const wins = Number.parseInt(match[1], 10);
+  const losses = Number.parseInt(match[2], 10);
+
+  return wins + losses;
 }
 
 function getEmptyDashboardData(): ResultsDashboardData {
@@ -318,7 +312,7 @@ function getEmptyDashboardData(): ResultsDashboardData {
       {
         label: "Overall Accuracy",
         value: "0%",
-        detail: "0 awaiting results",
+        detail: "0 won / 0 lost",
         tone: "emerald",
       },
       {
@@ -344,7 +338,7 @@ function getEmptyDashboardData(): ResultsDashboardData {
     latestResults: [],
     strongestPick: {
       accuracy: "0%",
-      record: "0 awaiting results",
+      record: "0W / 0L",
       note: "Strongest pick accuracy will calculate once matches are settled.",
     },
   };
