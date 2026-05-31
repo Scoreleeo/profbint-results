@@ -106,7 +106,6 @@ export async function getResultsDashboardData(
 }
 
 function buildSummaryStats(rows: PredictionHistoryRow[]): SummaryStat[] {
-  const total = rows.length;
   const won = rows.filter((row) => normalizeResult(row.status) === "WON").length;
   const lost = rows.filter((row) => normalizeResult(row.status) === "LOST").length;
   const pending = rows.filter(
@@ -114,31 +113,35 @@ function buildSummaryStats(rows: PredictionHistoryRow[]): SummaryStat[] {
   ).length;
 
   const settled = won + lost;
+  const accuracy = settled > 0 ? Math.round((won / settled) * 100) : 0;
 
   return [
     {
-      label: "Total Predictions",
-      value: String(total),
-      detail: "Saved live picks",
+      label: "Overall Accuracy",
+      value: settled > 0 ? `${accuracy}%` : "0%",
+      detail:
+        settled > 0
+          ? `${won} won / ${lost} lost`
+          : `${pending} awaiting results`,
       tone: "emerald",
+    },
+    {
+      label: "Won",
+      value: String(won),
+      detail: "Settled winning picks",
+      tone: "emerald",
+    },
+    {
+      label: "Lost",
+      value: String(lost),
+      detail: "Settled losing picks",
+      tone: "red",
     },
     {
       label: "Pending",
       value: String(pending),
-      detail: "Awaiting results",
+      detail: "Awaiting scores",
       tone: "amber",
-    },
-    {
-      label: "Settled",
-      value: String(settled),
-      detail: `${won} won / ${lost} lost`,
-      tone: "emerald",
-    },
-    {
-      label: "Leagues",
-      value: String(countLeagues(rows)),
-      detail: "Tracked competitions",
-      tone: "emerald",
     },
   ];
 }
@@ -188,18 +191,21 @@ function buildLeagueStats(rows: PredictionHistoryRow[]): LeagueStat[] {
       const accuracy =
         settled > 0 ? Math.round((record.won / settled) * 100) : 0;
 
-      const recordText =
-        settled > 0
-          ? `${record.won}W / ${record.lost}L • ${record.pending} pending`
-          : `${record.total} predictions pending`;
-
       return {
         league,
         accuracy: settled > 0 ? `${accuracy}%` : String(record.total),
-        record: recordText,
+        record:
+          settled > 0
+            ? `${record.won}W / ${record.lost}L • ${record.pending} pending`
+            : `${record.total} predictions pending`,
       };
     })
-    .sort((a, b) => Number.parseInt(b.accuracy) - Number.parseInt(a.accuracy))
+    .sort((a, b) => {
+      const aNumber = Number.parseInt(a.accuracy, 10);
+      const bNumber = Number.parseInt(b.accuracy, 10);
+
+      return bNumber - aNumber;
+    })
     .slice(0, 6);
 }
 
@@ -230,6 +236,13 @@ function buildStrongestPickStat(rows: PredictionHistoryRow[]): StrongestPickStat
       return;
     }
 
+    const rowStatus = normalizeResult(row.status);
+
+    if (rowStatus === "PENDING") {
+      pending += 1;
+      return;
+    }
+
     const strongestResult = getStrongestPickResult(row);
 
     if (strongestResult === "WON") {
@@ -241,20 +254,21 @@ function buildStrongestPickStat(rows: PredictionHistoryRow[]): StrongestPickStat
       lost += 1;
       return;
     }
-
-    pending += 1;
   });
 
   const settled = won + lost;
   const accuracy = settled > 0 ? Math.round((won / settled) * 100) : 0;
 
   return {
-    accuracy: settled > 0 ? `${accuracy}%` : String(pending),
-    record: settled > 0 ? `${won}W / ${lost}L` : `${pending} pending`,
+    accuracy: settled > 0 ? `${accuracy}%` : "0%",
+    record:
+      settled > 0
+        ? `${won}W / ${lost}L`
+        : `${pending} awaiting results`,
     note:
       settled > 0
         ? "Live accuracy for strongest confidence picks."
-        : "Strongest pick results will calculate once matches are settled.",
+        : "Strongest pick accuracy will calculate once matches are settled.",
   };
 }
 
@@ -296,46 +310,42 @@ function normalizeText(value: string | null): string {
   return value?.trim().toLowerCase() ?? "";
 }
 
-function countLeagues(rows: PredictionHistoryRow[]): number {
-  return new Set(rows.map((row) => row.leagueName || "Unknown League")).size;
-}
-
 function getEmptyDashboardData(): ResultsDashboardData {
   return {
     selectedSeason: FALLBACK_SEASON,
     seasons: [FALLBACK_SEASON],
     summaryStats: [
       {
-        label: "Total Predictions",
-        value: "0",
-        detail: "Saved live picks",
+        label: "Overall Accuracy",
+        value: "0%",
+        detail: "0 awaiting results",
         tone: "emerald",
+      },
+      {
+        label: "Won",
+        value: "0",
+        detail: "Settled winning picks",
+        tone: "emerald",
+      },
+      {
+        label: "Lost",
+        value: "0",
+        detail: "Settled losing picks",
+        tone: "red",
       },
       {
         label: "Pending",
         value: "0",
-        detail: "Awaiting results",
+        detail: "Awaiting scores",
         tone: "amber",
-      },
-      {
-        label: "Settled",
-        value: "0",
-        detail: "0 won / 0 lost",
-        tone: "emerald",
-      },
-      {
-        label: "Leagues",
-        value: "0",
-        detail: "Tracked competitions",
-        tone: "emerald",
       },
     ],
     leagueStats: [],
     latestResults: [],
     strongestPick: {
-      accuracy: "0",
-      record: "0 pending",
-      note: "Strongest pick results will calculate once matches are settled.",
+      accuracy: "0%",
+      record: "0 awaiting results",
+      note: "Strongest pick accuracy will calculate once matches are settled.",
     },
   };
 }
