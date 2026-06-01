@@ -33,7 +33,7 @@ export default async function Home({ searchParams }: PageProps) {
               </h1>
 
               <p className="mt-2.5 max-w-3xl text-sm leading-6 text-slate-300/85 sm:mt-3 sm:text-base sm:leading-7">
-                Public read-only dashboard tracking saved predictions, pending
+                Public read-only dashboard tracking saved predictions, settled
                 outcomes and verified Pro Football Intel performance.
               </p>
             </div>
@@ -89,17 +89,27 @@ export default async function Home({ searchParams }: PageProps) {
         <section className="grid gap-4 sm:gap-6 lg:grid-cols-3">
           <div className="rounded-[26px] border border-white/10 bg-[#0a1b2e]/90 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] sm:rounded-3xl sm:p-6 lg:col-span-2">
             <SectionHeader
-              eyebrow="League Coverage"
-              title="Predictions by league"
+              eyebrow="League Rankings"
+              title="Performance by league"
               note={data.selectedSeason}
             />
 
             <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              {data.leagueStats.map((item) => (
+              {data.leagueStats.map((item, index) => (
                 <div
                   key={item.league}
                   className="group rounded-2xl border border-white/10 bg-[#061320]/90 p-3.5 shadow-[0_12px_34px_rgba(0,0,0,0.22)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/25 hover:bg-[#071b2d] sm:p-5"
                 >
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-sm font-black text-emerald-300">
+                      #{index + 1}
+                    </span>
+
+                    <span className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-slate-500">
+                      Rank
+                    </span>
+                  </div>
+
                   <p className="truncate text-xs font-semibold text-slate-400 sm:text-sm">
                     {item.league}
                   </p>
@@ -154,9 +164,9 @@ export default async function Home({ searchParams }: PageProps) {
 
         <section className="rounded-[26px] border border-white/10 bg-[#0a1b2e]/90 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] sm:rounded-3xl sm:p-6">
           <SectionHeader
-            eyebrow="Latest Predictions"
-            title="Live saved picks"
-            note="Results update after settlement"
+            eyebrow="Latest Results"
+            title="Verified settled picks"
+            note="Updated from admin results"
           />
 
           <div className="space-y-2.5 md:hidden">
@@ -239,7 +249,7 @@ export default async function Home({ searchParams }: PageProps) {
                   <ResultPill result={match.result} />
                 </div>
 
-                <div className="text-slate-500">After settlement</div>
+                <div className="text-slate-500">Admin verified</div>
               </div>
             ))}
           </div>
