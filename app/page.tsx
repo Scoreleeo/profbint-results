@@ -1,5 +1,7 @@
 import {
   getResultsDashboardData,
+  type LeagueStat,
+  type SeasonInsight,
   type SummaryStat,
 } from "@/lib/results-data";
 
@@ -94,36 +96,7 @@ export default async function Home({ searchParams }: PageProps) {
               note={data.selectedSeason}
             />
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              {data.leagueStats.map((item, index) => (
-                <div
-                  key={item.league}
-                  className="group rounded-2xl border border-white/10 bg-[#061320]/90 p-3.5 shadow-[0_12px_34px_rgba(0,0,0,0.22)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/25 hover:bg-[#071b2d] sm:p-5"
-                >
-                  <div className="mb-3 flex items-center justify-between gap-3">
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-sm font-black text-emerald-300">
-                      #{index + 1}
-                    </span>
-
-                    <span className="text-[0.65rem] font-black uppercase tracking-[0.18em] text-slate-500">
-                      Rank
-                    </span>
-                  </div>
-
-                  <p className="truncate text-xs font-semibold text-slate-400 sm:text-sm">
-                    {item.league}
-                  </p>
-
-                  <p className="mt-2 text-[2rem] font-black leading-none tracking-tight text-white sm:mt-3 sm:text-3xl">
-                    {item.accuracy}
-                  </p>
-
-                  <p className="mt-1.5 text-xs font-semibold text-slate-500 sm:mt-2 sm:text-sm">
-                    {item.record}
-                  </p>
-                </div>
-              ))}
-            </div>
+            <LeagueRankingTable leagues={data.leagueStats} />
           </div>
 
           <div className="relative overflow-hidden rounded-[26px] border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(7,47,37,0.96),rgba(7,28,45,0.96))] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.34)] sm:rounded-3xl sm:p-6">
@@ -159,6 +132,20 @@ export default async function Home({ searchParams }: PageProps) {
                 </div>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section className="rounded-[26px] border border-white/10 bg-[#0a1b2e]/90 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] sm:rounded-3xl sm:p-6">
+          <SectionHeader
+            eyebrow="Season Summary"
+            title="Public transparency metrics"
+            note="Read-only performance view"
+          />
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {data.seasonInsights.map((insight) => (
+              <SeasonInsightCard key={insight.label} insight={insight} />
+            ))}
           </div>
         </section>
 
@@ -288,6 +275,82 @@ function MetricCard({
 
       <p className="mt-1.5 text-xs font-medium text-slate-500 sm:mt-2 sm:text-sm">
         {detail}
+      </p>
+    </div>
+  );
+}
+
+function LeagueRankingTable({ leagues }: { leagues: LeagueStat[] }) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-white/10">
+      <div className="hidden grid-cols-[0.6fr_1.5fr_0.7fr_0.7fr_0.9fr] bg-white/[0.055] px-4 py-3 text-xs font-black uppercase tracking-[0.16em] text-slate-500 md:grid">
+        <span>Rank</span>
+        <span>League</span>
+        <span>Won</span>
+        <span>Lost</span>
+        <span>Accuracy</span>
+      </div>
+
+      <div className="divide-y divide-white/10">
+        {leagues.map((league) => (
+          <div
+            key={league.league}
+            className="grid gap-3 bg-[#061320]/90 px-4 py-4 text-sm transition hover:bg-[#071b2d] md:grid-cols-[0.6fr_1.5fr_0.7fr_0.7fr_0.9fr] md:items-center"
+          >
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-sm font-black text-emerald-300">
+                #{league.rank}
+              </span>
+
+              <div className="md:hidden">
+                <p className="font-black text-white">{league.league}</p>
+                <p className="text-xs font-semibold text-slate-500">
+                  {league.record}
+                </p>
+              </div>
+            </div>
+
+            <p className="hidden font-black text-white md:block">
+              {league.league}
+            </p>
+
+            <p className="hidden font-bold text-emerald-300 md:block">
+              {league.wins}
+            </p>
+
+            <p className="hidden font-bold text-red-300 md:block">
+              {league.losses}
+            </p>
+
+            <div className="flex items-center justify-between gap-3 md:block">
+              <p className="text-3xl font-black leading-none text-white md:text-xl md:text-emerald-300">
+                {league.accuracy}
+              </p>
+
+              <p className="text-xs font-semibold text-slate-500 md:mt-1">
+                {league.settled} settled
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SeasonInsightCard({ insight }: { insight: SeasonInsight }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-[#061320]/90 p-4 shadow-[0_12px_34px_rgba(0,0,0,0.22)]">
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+        {insight.label}
+      </p>
+
+      <p className="mt-3 text-2xl font-black tracking-tight text-white">
+        {insight.value}
+      </p>
+
+      <p className="mt-2 text-sm font-medium leading-5 text-slate-400">
+        {insight.detail}
       </p>
     </div>
   );
