@@ -18,13 +18,14 @@ export default async function Home({ searchParams }: PageProps) {
   const data = await getResultsDashboardData(params?.season);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.16),transparent_24rem),radial-gradient(circle_at_top_right,rgba(59,130,246,0.14),transparent_26rem),linear-gradient(180deg,#071827_0%,#06111f_44%,#030712_100%)] text-white">
+    <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.22),transparent_24rem),radial-gradient(circle_at_top_right,rgba(59,130,246,0.2),transparent_30rem),radial-gradient(circle_at_50%_0%,rgba(20,184,166,0.14),transparent_36rem),linear-gradient(180deg,#071827_0%,#06111f_42%,#020617_100%)] text-white">
       <section className="mx-auto flex w-full max-w-[430px] flex-col gap-4 px-3 pb-32 pt-4 sm:max-w-7xl sm:gap-6 sm:px-8 sm:pb-16 sm:pt-6 lg:px-10">
-        <header className="relative overflow-hidden rounded-[24px] border border-white/10 bg-[linear-gradient(135deg,rgba(15,38,66,0.96),rgba(7,20,36,0.98)_48%,rgba(3,7,18,0.98))] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.38)] sm:rounded-3xl sm:p-6 lg:p-7">
-          <div className="pointer-events-none absolute -right-20 -top-20 h-44 w-44 rounded-full bg-emerald-400/14 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 left-8 h-44 w-44 rounded-full bg-blue-500/10 blur-3xl" />
+        <header className="relative overflow-hidden rounded-[24px] border border-emerald-400/15 bg-[linear-gradient(135deg,rgba(15,38,66,0.96),rgba(7,20,36,0.98)_48%,rgba(3,7,18,0.98))] p-4 shadow-[0_24px_90px_rgba(0,0,0,0.45)] sm:rounded-3xl sm:p-6 lg:p-7">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_22%,rgba(16,185,129,0.22),transparent_18rem)]" />
+          <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-emerald-400/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 left-8 h-48 w-48 rounded-full bg-blue-500/14 blur-3xl" />
 
-          <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_280px] xl:items-end">
+          <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px] xl:items-end">
             <div className="min-w-0">
               <p className="mb-2 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-emerald-400 sm:text-xs sm:tracking-[0.28em]">
                 Pro Football Intel Results
@@ -42,11 +43,11 @@ export default async function Home({ searchParams }: PageProps) {
 
             <form
               method="GET"
-              className="rounded-2xl border border-white/10 bg-white/[0.06] p-3 shadow-inner shadow-white/5 backdrop-blur xl:max-w-[280px]"
+              className="rounded-2xl border border-emerald-400/15 bg-white/[0.07] p-3 shadow-inner shadow-white/5 backdrop-blur xl:max-w-[300px]"
             >
               <label
                 htmlFor="season"
-                className="mb-2 block text-[0.65rem] font-bold uppercase tracking-[0.22em] text-slate-400 sm:text-xs"
+                className="mb-2 block text-[0.65rem] font-bold uppercase tracking-[0.22em] text-emerald-300 sm:text-xs"
               >
                 Season
               </label>
@@ -56,7 +57,7 @@ export default async function Home({ searchParams }: PageProps) {
                   id="season"
                   name="season"
                   defaultValue={data.selectedSeason}
-                  className="min-w-0 rounded-xl border border-white/10 bg-[#06111f] px-3 py-2.5 text-sm font-semibold text-white outline-none ring-0 transition focus:border-emerald-400/40"
+                  className="min-w-0 rounded-xl border border-emerald-400/20 bg-[#06111f] px-3 py-2.5 text-sm font-semibold text-white outline-none ring-0 transition focus:border-emerald-400/50"
                 >
                   {data.seasons.map((season) => (
                     <option key={season} value={season}>
@@ -67,11 +68,15 @@ export default async function Home({ searchParams }: PageProps) {
 
                 <button
                   type="submit"
-                  className="rounded-xl border border-emerald-400/20 bg-emerald-400/10 px-3 py-2 text-xs font-black uppercase tracking-wide text-emerald-300 transition hover:border-emerald-300/40 hover:bg-emerald-400/15"
+                  className="rounded-xl border border-emerald-300/25 bg-emerald-400/15 px-3 py-2 text-xs font-black uppercase tracking-wide text-emerald-200 transition hover:border-emerald-300/50 hover:bg-emerald-400/25"
                 >
                   View
                 </button>
               </div>
+
+              <p className="mt-3 text-xs font-medium text-slate-400">
+                Live season performance overview
+              </p>
             </form>
           </div>
         </header>
@@ -99,8 +104,9 @@ export default async function Home({ searchParams }: PageProps) {
             <LeagueRankingTable leagues={data.leagueStats} />
           </div>
 
-          <div className="relative overflow-hidden rounded-[26px] border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(7,47,37,0.96),rgba(7,28,45,0.96))] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.34)] sm:rounded-3xl sm:p-6">
-            <div className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full bg-emerald-300/20 blur-3xl" />
+          <div className="relative overflow-hidden rounded-[26px] border border-emerald-400/25 bg-[linear-gradient(135deg,rgba(7,47,37,0.98),rgba(7,28,45,0.98))] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.34)] sm:rounded-3xl sm:p-6">
+            <div className="pointer-events-none absolute -right-14 -top-14 h-44 w-44 rounded-full bg-emerald-300/25 blur-3xl" />
+            <div className="pointer-events-none absolute -bottom-14 left-2 h-36 w-36 rounded-full bg-cyan-400/10 blur-3xl" />
 
             <div className="relative">
               <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-emerald-300 sm:text-sm sm:tracking-[0.25em]">
@@ -123,7 +129,7 @@ export default async function Home({ searchParams }: PageProps) {
                 </p>
               </div>
 
-              <div className="mt-4 rounded-2xl border border-white/10 bg-[#05111d]/70 px-3.5 py-3 shadow-inner shadow-white/5 sm:mt-6 sm:p-4">
+              <div className="mt-4 rounded-2xl border border-emerald-400/15 bg-[#05111d]/75 px-3.5 py-3 shadow-inner shadow-white/5 sm:mt-6 sm:p-4">
                 <div className="flex items-center justify-between gap-4">
                   <p className="text-sm font-medium text-slate-400">Record</p>
                   <p className="text-lg font-black text-white sm:text-xl">
@@ -143,9 +149,72 @@ export default async function Home({ searchParams }: PageProps) {
           />
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {data.seasonInsights.map((insight) => (
-              <SeasonInsightCard key={insight.label} insight={insight} />
+            {data.seasonInsights.map((insight, index) => (
+              <SeasonInsightCard
+                key={insight.label}
+                insight={insight}
+                index={index}
+              />
             ))}
+          </div>
+        </section>
+
+        <section className="rounded-[26px] border border-white/10 bg-[#0a1b2e]/90 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] sm:rounded-3xl sm:p-6">
+          <SectionHeader
+            eyebrow="Season Performance Trend"
+            title="Accuracy performance snapshot"
+            note="Phase 4.1 visual overview"
+          />
+
+          <div className="grid gap-3 lg:grid-cols-4">
+            <TrendStat
+              label="Settled Picks"
+              value={data.seasonInsights[0]?.value ?? "0"
+              }
+              detail="Verified completed results"
+              tone="emerald"
+            />
+            <TrendStat
+              label="Winning Picks"
+              value={data.summaryStats.find((item) => item.label === "Won")?.value ?? "0"}
+              detail="First-choice wins"
+              tone="emerald"
+            />
+            <TrendStat
+              label="Losing Picks"
+              value={data.summaryStats.find((item) => item.label === "Lost")?.value ?? "0"}
+              detail="First-choice losses"
+              tone="red"
+            />
+            <TrendStat
+              label="Overall Accuracy"
+              value={data.summaryStats.find((item) => item.label === "Overall Accuracy")?.value ?? "0%"}
+              detail="Current verified rate"
+              tone="blue"
+            />
+          </div>
+
+          <div className="mt-4 rounded-2xl border border-white/10 bg-[#061320]/90 p-4">
+            <div className="mb-3 flex items-center justify-between gap-4">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                Result Balance
+              </p>
+              <p className="text-xs font-semibold text-slate-500">
+                Won / Lost split
+              </p>
+            </div>
+
+            <div className="h-3 overflow-hidden rounded-full bg-white/10">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400"
+                style={{
+                  width:
+                    data.summaryStats.find(
+                      (item) => item.label === "Overall Accuracy",
+                    )?.value ?? "0%",
+                }}
+              />
+            </div>
           </div>
         </section>
 
@@ -252,30 +321,64 @@ function MetricCard({
   detail,
   tone,
 }: SummaryStat) {
-  const glow =
+  const config =
     tone === "emerald"
-      ? "from-emerald-400/14"
+      ? {
+          icon: "✓",
+          border: "border-emerald-400/20",
+          glow: "from-emerald-400/20",
+          iconClass: "bg-emerald-400/15 text-emerald-300",
+          wave: "from-emerald-400/40",
+        }
       : tone === "red"
-        ? "from-red-400/12"
-        : "from-amber-400/12";
+        ? {
+            icon: "×",
+            border: "border-red-400/20",
+            glow: "from-red-400/16",
+            iconClass: "bg-red-400/15 text-red-300",
+            wave: "from-red-400/40",
+          }
+        : {
+            icon: "!",
+            border: "border-amber-400/20",
+            glow: "from-amber-400/16",
+            iconClass: "bg-amber-400/15 text-amber-300",
+            wave: "from-amber-400/40",
+          };
 
   return (
-    <div className="group rounded-[22px] border border-white/10 bg-[linear-gradient(135deg,rgba(10,27,46,0.98),rgba(6,19,32,0.96))] p-3.5 shadow-[0_14px_42px_rgba(0,0,0,0.25)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/20 sm:rounded-3xl sm:p-6">
+    <div
+      className={`group relative overflow-hidden rounded-[22px] border ${config.border} bg-[linear-gradient(135deg,rgba(10,27,46,0.98),rgba(6,19,32,0.96))] p-3.5 shadow-[0_14px_42px_rgba(0,0,0,0.25)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/30 sm:rounded-3xl sm:p-6`}
+    >
       <div
-        className={`pointer-events-none mb-3 h-1 w-10 rounded-full bg-gradient-to-r ${glow} to-transparent`}
+        className={`pointer-events-none absolute -bottom-8 left-0 h-14 w-full bg-gradient-to-r ${config.wave} to-transparent opacity-30 blur-2xl`}
       />
 
-      <p className="text-xs font-semibold text-slate-400 sm:text-sm">
-        {label}
-      </p>
+      <div className="relative flex items-start gap-3">
+        <span
+          className={`hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl font-black sm:flex ${config.iconClass}`}
+        >
+          {config.icon}
+        </span>
 
-      <p className="mt-2 text-[2.2rem] font-black leading-none tracking-tight text-white sm:mt-4 sm:text-4xl">
-        {value}
-      </p>
+        <div>
+          <div
+            className={`pointer-events-none mb-3 h-1 w-10 rounded-full bg-gradient-to-r ${config.glow} to-transparent`}
+          />
 
-      <p className="mt-1.5 text-xs font-medium text-slate-500 sm:mt-2 sm:text-sm">
-        {detail}
-      </p>
+          <p className="text-xs font-semibold text-slate-400 sm:text-sm">
+            {label}
+          </p>
+
+          <p className="mt-2 text-[2.2rem] font-black leading-none tracking-tight text-white sm:mt-4 sm:text-4xl">
+            {value}
+          </p>
+
+          <p className="mt-1.5 text-xs font-medium text-slate-500 sm:mt-2 sm:text-sm">
+            {detail}
+          </p>
+        </div>
+      </div>
     </div>
   );
 }
@@ -338,10 +441,27 @@ function LeagueRankingTable({ leagues }: { leagues: LeagueStat[] }) {
   );
 }
 
-function SeasonInsightCard({ insight }: { insight: SeasonInsight }) {
+function SeasonInsightCard({
+  insight,
+  index,
+}: {
+  insight: SeasonInsight;
+  index: number;
+}) {
+  const tones = [
+    "border-emerald-400/20 bg-emerald-400/8",
+    "border-blue-400/20 bg-blue-400/8",
+    "border-emerald-400/20 bg-emerald-400/8",
+    "border-red-400/20 bg-red-400/8",
+    "border-purple-400/20 bg-purple-400/8",
+    "border-amber-400/20 bg-amber-400/8",
+  ];
+
   return (
-    <div className="rounded-2xl border border-white/10 bg-[#061320]/90 p-4 shadow-[0_12px_34px_rgba(0,0,0,0.22)]">
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+    <div
+      className={`rounded-2xl border ${tones[index % tones.length]} p-4 shadow-[0_12px_34px_rgba(0,0,0,0.22)]`}
+    >
+      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-400">
         {insight.label}
       </p>
 
@@ -352,6 +472,33 @@ function SeasonInsightCard({ insight }: { insight: SeasonInsight }) {
       <p className="mt-2 text-sm font-medium leading-5 text-slate-400">
         {insight.detail}
       </p>
+    </div>
+  );
+}
+
+function TrendStat({
+  label,
+  value,
+  detail,
+  tone,
+}: {
+  label: string;
+  value: string;
+  detail: string;
+  tone: "emerald" | "red" | "blue";
+}) {
+  const className =
+    tone === "emerald"
+      ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-300"
+      : tone === "red"
+        ? "border-red-400/20 bg-red-400/10 text-red-300"
+        : "border-blue-400/20 bg-blue-400/10 text-blue-300";
+
+  return (
+    <div className={`rounded-2xl border p-4 ${className}`}>
+      <p className="text-2xl font-black text-white">{value}</p>
+      <p className="mt-1 text-sm font-black">{label}</p>
+      <p className="mt-1 text-xs font-medium text-slate-400">{detail}</p>
     </div>
   );
 }
