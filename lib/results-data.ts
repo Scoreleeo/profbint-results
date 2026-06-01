@@ -60,7 +60,9 @@ export async function getResultsDashboardData(
       },
     });
 
-    const seasons = seasonRows.map((item) => item.season).filter(Boolean);
+    const seasons = seasonRows
+  .map((item) => item.season)
+  .filter((season) => season && season !== "2025/26");
 
     const selectedSeason =
       requestedSeason && seasons.includes(requestedSeason)
