@@ -61,6 +61,16 @@ type PredictionHistoryRow = {
 const FALLBACK_SEASON = "2025-26";
 const LEGACY_SEASON_TO_HIDE = "2025/26";
 
+const TRACKED_LEAGUES = [
+  "Premier League",
+  "La Liga",
+  "Serie A",
+  "Bundesliga",
+  "Ligue 1",
+  "Eredivisie",
+  "Primeira Liga",
+];
+
 export async function getResultsDashboardData(
   requestedSeason?: string,
 ): Promise<ResultsDashboardData> {
@@ -179,6 +189,15 @@ function buildLeagueStats(rows: PredictionHistoryRow[]): LeagueStat[] {
     }
   >();
 
+  TRACKED_LEAGUES.forEach((league) => {
+    leagueMap.set(league, {
+      won: 0,
+      lost: 0,
+      pending: 0,
+      settled: 0,
+    });
+  });
+
   rows.forEach((row) => {
     const league = row.leagueName || "Unknown League";
     const current = leagueMap.get(league) ?? {
@@ -227,7 +246,11 @@ function buildLeagueStats(rows: PredictionHistoryRow[]): LeagueStat[] {
         return bAccuracy - aAccuracy;
       }
 
-      return b.settled - a.settled;
+      if (b.settled !== a.settled) {
+        return b.settled - a.settled;
+      }
+
+      return TRACKED_LEAGUES.indexOf(a.league) - TRACKED_LEAGUES.indexOf(b.league);
     })
     .map((league, index) => ({
       ...league,
@@ -285,19 +308,21 @@ function buildSeasonInsights(
   const completed = getCompletedRows(rows);
   const wins = completed.filter((row) => row.firstChoiceResult === "WON").length;
   const losses = completed.filter((row) => row.firstChoiceResult === "LOST").length;
-  const bestLeague = leagueStats.find((league) => league.settled > 0);
-  const worstLeague = [...leagueStats]
-    .filter((league) => league.settled > 0)
-    .sort((a, b) => {
-      const aAccuracy = Number.parseInt(a.accuracy, 10);
-      const bAccuracy = Number.parseInt(b.accuracy, 10);
 
-      if (aAccuracy !== bAccuracy) {
-        return aAccuracy - bAccuracy;
-      }
+  const settledLeagueStats = leagueStats.filter((league) => league.settled > 0);
 
-      return b.settled - a.settled;
-    })[0];
+  const bestLeague = settledLeagueStats[0];
+
+  const worstLeague = [...settledLeagueStats].sort((a, b) => {
+    const aAccuracy = Number.parseInt(a.accuracy, 10);
+    const bAccuracy = Number.parseInt(b.accuracy, 10);
+
+    if (aAccuracy !== bAccuracy) {
+      return aAccuracy - bAccuracy;
+    }
+
+    return b.settled - a.settled;
+  })[0];
 
   return [
     {
@@ -331,8 +356,8 @@ function buildSeasonInsights(
     },
     {
       label: "Tracked Leagues",
-      value: String(leagueStats.length),
-      detail: "Competitions in this season",
+      value: String(TRACKED_LEAGUES.length),
+      detail: "Competitions prepared for the season",
     },
   ];
 }
@@ -374,6 +399,17 @@ function getAccuracy(wins: number, completed: number): string {
 }
 
 function getEmptyDashboardData(): ResultsDashboardData {
+  const emptyLeagueStats = TRACKED_LEAGUES.map((league, index) => ({
+    rank: index + 1,
+    league,
+    accuracy: "0%",
+    wins: 0,
+    losses: 0,
+    settled: 0,
+    pending: 0,
+    record: "0 pending",
+  }));
+
   return {
     selectedSeason: FALLBACK_SEASON,
     seasons: [FALLBACK_SEASON],
@@ -403,13 +439,44 @@ function getEmptyDashboardData(): ResultsDashboardData {
         tone: "amber",
       },
     ],
-    leagueStats: [],
+    leagueStats: emptyLeagueStats,
     latestResults: [],
     strongestPick: {
       accuracy: "0%",
       record: "0W / 0L",
       note: "Strongest pick accuracy will calculate once matches are settled.",
     },
-    seasonInsights: [],
+    seasonInsights: [
+      {
+        label: "Settled Picks",
+        value: "0",
+        detail: "Verified completed results",
+      },
+      {
+        label: "Win/Loss Record",
+        value: "0-0",
+        detail: "First-choice performance",
+      },
+      {
+        label: "Best League",
+        value: "N/A",
+        detail: "No settled league data yet",
+      },
+      {
+        label: "Lowest League",
+        value: "N/A",
+        detail: "No settled league data yet",
+      },
+      {
+        label: "Strongest Pick",
+        value: "0%",
+        detail: "0W / 0L",
+      },
+      {
+        label: "Tracked Leagues",
+        value: String(TRACKED_LEAGUES.length),
+        detail: "Competitions prepared for the season",
+      },
+    ],
   };
 }
