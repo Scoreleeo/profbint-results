@@ -17,10 +17,25 @@ export default async function Home({ searchParams }: PageProps) {
   const params = await searchParams;
   const data = await getResultsDashboardData(params?.season);
 
+  const overallAccuracy =
+    data.summaryStats.find((item) => item.label === "Overall Accuracy")?.value ??
+    "0%";
+
+  const winningPicks =
+    data.summaryStats.find((item) => item.label === "Won")?.value ?? "0";
+
+  const losingPicks =
+    data.summaryStats.find((item) => item.label === "Lost")?.value ?? "0";
+
+  const pendingPicks =
+    data.summaryStats.find((item) => item.label === "Pending")?.value ?? "0";
+
+  const settledPicks = data.seasonInsights[0]?.value ?? "0";
+
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.22),transparent_24rem),radial-gradient(circle_at_top_right,rgba(59,130,246,0.2),transparent_30rem),radial-gradient(circle_at_50%_0%,rgba(20,184,166,0.14),transparent_36rem),linear-gradient(180deg,#071827_0%,#06111f_42%,#020617_100%)] text-white">
+    <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.24),transparent_24rem),radial-gradient(circle_at_top_right,rgba(59,130,246,0.22),transparent_30rem),radial-gradient(circle_at_50%_0%,rgba(20,184,166,0.16),transparent_36rem),linear-gradient(180deg,#071827_0%,#06111f_42%,#020617_100%)] text-white">
       <section className="mx-auto flex w-full max-w-[430px] flex-col gap-4 px-3 pb-32 pt-4 sm:max-w-7xl sm:gap-6 sm:px-8 sm:pb-16 sm:pt-6 lg:px-10">
-        <header className="relative overflow-hidden rounded-[24px] border border-emerald-400/15 bg-[linear-gradient(135deg,rgba(15,38,66,0.96),rgba(7,20,36,0.98)_48%,rgba(3,7,18,0.98))] p-4 shadow-[0_24px_90px_rgba(0,0,0,0.45)] sm:rounded-3xl sm:p-6 lg:p-7">
+        <header className="relative overflow-hidden rounded-[24px] border border-emerald-400/15 bg-[linear-gradient(135deg,rgba(15,38,66,0.97),rgba(7,20,36,0.98)_48%,rgba(3,7,18,0.98))] p-4 shadow-[0_24px_90px_rgba(0,0,0,0.45)] sm:rounded-3xl sm:p-6 lg:p-7">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_22%,rgba(16,185,129,0.22),transparent_18rem)]" />
           <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-emerald-400/20 blur-3xl" />
           <div className="pointer-events-none absolute -bottom-24 left-8 h-48 w-48 rounded-full bg-blue-500/14 blur-3xl" />
@@ -37,7 +52,8 @@ export default async function Home({ searchParams }: PageProps) {
 
               <p className="mt-2.5 max-w-3xl text-sm leading-6 text-slate-300/85 sm:mt-3 sm:text-base sm:leading-7">
                 Public read-only dashboard tracking saved predictions, settled
-                outcomes and verified Pro Football Intel performance.
+                outcomes, league performance and verified Pro Football Intel
+                accuracy.
               </p>
             </div>
 
@@ -75,7 +91,7 @@ export default async function Home({ searchParams }: PageProps) {
               </div>
 
               <p className="mt-3 text-xs font-medium text-slate-400">
-                Live season performance overview
+                Auto-updated from verified admin results
               </p>
             </form>
           </div>
@@ -161,59 +177,83 @@ export default async function Home({ searchParams }: PageProps) {
 
         <section className="rounded-[26px] border border-white/10 bg-[#0a1b2e]/90 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] sm:rounded-3xl sm:p-6">
           <SectionHeader
-            eyebrow="Season Performance Trend"
-            title="Accuracy performance snapshot"
-            note="Phase 4.1 visual overview"
+            eyebrow="Visual Analytics"
+            title="Season performance graphics"
+            note="Automatic result tracking"
           />
 
           <div className="grid gap-3 lg:grid-cols-4">
             <TrendStat
               label="Settled Picks"
-              value={data.seasonInsights[0]?.value ?? "0"
-              }
+              value={settledPicks}
               detail="Verified completed results"
               tone="emerald"
             />
+
             <TrendStat
               label="Winning Picks"
-              value={data.summaryStats.find((item) => item.label === "Won")?.value ?? "0"}
+              value={winningPicks}
               detail="First-choice wins"
               tone="emerald"
             />
+
             <TrendStat
               label="Losing Picks"
-              value={data.summaryStats.find((item) => item.label === "Lost")?.value ?? "0"}
+              value={losingPicks}
               detail="First-choice losses"
               tone="red"
             />
+
             <TrendStat
               label="Overall Accuracy"
-              value={data.summaryStats.find((item) => item.label === "Overall Accuracy")?.value ?? "0%"}
+              value={overallAccuracy}
               detail="Current verified rate"
               tone="blue"
             />
           </div>
 
-          <div className="mt-4 rounded-2xl border border-white/10 bg-[#061320]/90 p-4">
-            <div className="mb-3 flex items-center justify-between gap-4">
-              <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
-                Result Balance
-              </p>
-              <p className="text-xs font-semibold text-slate-500">
-                Won / Lost split
-              </p>
+          <div className="mt-4 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+            <div className="rounded-2xl border border-white/10 bg-[#061320]/90 p-4">
+              <div className="mb-3 flex items-center justify-between gap-4">
+                <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">
+                  Result Balance
+                </p>
+                <p className="text-xs font-semibold text-slate-500">
+                  Won / Lost split
+                </p>
+              </div>
+
+              <div className="h-3 overflow-hidden rounded-full bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400"
+                  style={{ width: overallAccuracy }}
+                />
+              </div>
+
+              <div className="mt-4 grid grid-cols-2 gap-3">
+                <MiniGraphCard
+                  label="Won"
+                  value={winningPicks}
+                  tone="emerald"
+                />
+
+                <MiniGraphCard label="Lost" value={losingPicks} tone="red" />
+              </div>
             </div>
 
-            <div className="h-3 overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400"
-                style={{
-                  width:
-                    data.summaryStats.find(
-                      (item) => item.label === "Overall Accuracy",
-                    )?.value ?? "0%",
-                }}
-              />
+            <div className="rounded-2xl border border-blue-400/20 bg-blue-400/[0.08] p-4">
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-blue-300">
+                Coming Season Ready
+              </p>
+
+              <p className="mt-3 text-2xl font-black text-white">
+                Auto-updating dashboard
+              </p>
+
+              <p className="mt-2 text-sm leading-6 text-slate-300">
+                When the new season begins, saved and settled predictions in
+                Admin will automatically feed this public results dashboard.
+              </p>
             </div>
           </div>
         </section>
@@ -310,6 +350,17 @@ export default async function Home({ searchParams }: PageProps) {
             ))}
           </div>
         </section>
+
+        <footer className="rounded-[26px] border border-white/10 bg-[#061320]/80 p-4 text-center shadow-[0_18px_60px_rgba(0,0,0,0.25)] sm:p-6">
+          <p className="text-xs font-black uppercase tracking-[0.22em] text-emerald-400">
+            Pro Football Intel Results
+          </p>
+
+          <p className="mt-2 text-sm leading-6 text-slate-400">
+            Public read-only performance reporting. Results update
+            automatically from verified admin-settled predictions.
+          </p>
+        </footer>
       </section>
     </main>
   );
@@ -449,12 +500,12 @@ function SeasonInsightCard({
   index: number;
 }) {
   const tones = [
-    "border-emerald-400/20 bg-emerald-400/8",
-    "border-blue-400/20 bg-blue-400/8",
-    "border-emerald-400/20 bg-emerald-400/8",
-    "border-red-400/20 bg-red-400/8",
-    "border-purple-400/20 bg-purple-400/8",
-    "border-amber-400/20 bg-amber-400/8",
+    "border-emerald-400/20 bg-emerald-400/[0.08]",
+    "border-blue-400/20 bg-blue-400/[0.08]",
+    "border-cyan-400/20 bg-cyan-400/[0.08]",
+    "border-red-400/20 bg-red-400/[0.08]",
+    "border-purple-400/20 bg-purple-400/[0.08]",
+    "border-amber-400/20 bg-amber-400/[0.08]",
   ];
 
   return (
@@ -499,6 +550,30 @@ function TrendStat({
       <p className="text-2xl font-black text-white">{value}</p>
       <p className="mt-1 text-sm font-black">{label}</p>
       <p className="mt-1 text-xs font-medium text-slate-400">{detail}</p>
+    </div>
+  );
+}
+
+function MiniGraphCard({
+  label,
+  value,
+  tone,
+}: {
+  label: string;
+  value: string;
+  tone: "emerald" | "red";
+}) {
+  const className =
+    tone === "emerald"
+      ? "border-emerald-400/20 bg-emerald-400/[0.08] text-emerald-300"
+      : "border-red-400/20 bg-red-400/[0.08] text-red-300";
+
+  return (
+    <div className={`rounded-xl border p-3 ${className}`}>
+      <p className="text-xl font-black text-white">{value}</p>
+      <p className="text-xs font-black uppercase tracking-[0.16em]">
+        {label}
+      </p>
     </div>
   );
 }
