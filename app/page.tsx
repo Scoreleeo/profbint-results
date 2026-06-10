@@ -31,39 +31,58 @@ export default async function Home({ searchParams }: PageProps) {
     data.summaryStats.find((item) => item.label === "Pending")?.value ?? "0";
 
   const settledPicks = data.seasonInsights[0]?.value ?? "0";
+  const accuracyNumber = getPercentageNumber(overallAccuracy);
+  const lossPercentage = Math.max(0, 100 - accuracyNumber);
+  const topLeague = data.leagueStats.find((league) => league.settled > 0);
 
   return (
-    <main className="min-h-screen overflow-x-hidden bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.24),transparent_24rem),radial-gradient(circle_at_top_right,rgba(59,130,246,0.22),transparent_30rem),radial-gradient(circle_at_50%_0%,rgba(20,184,166,0.16),transparent_36rem),linear-gradient(180deg,#071827_0%,#06111f_42%,#020617_100%)] text-white">
-      <section className="mx-auto flex w-full max-w-[430px] flex-col gap-4 px-3 pb-32 pt-4 sm:max-w-7xl sm:gap-6 sm:px-8 sm:pb-16 sm:pt-6 lg:px-10">
-        <header className="relative overflow-hidden rounded-[24px] border border-emerald-400/15 bg-[linear-gradient(135deg,rgba(15,38,66,0.97),rgba(7,20,36,0.98)_48%,rgba(3,7,18,0.98))] p-4 shadow-[0_24px_90px_rgba(0,0,0,0.45)] sm:rounded-3xl sm:p-6 lg:p-7">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_22%,rgba(16,185,129,0.22),transparent_18rem)]" />
-          <div className="pointer-events-none absolute -right-20 -top-20 h-48 w-48 rounded-full bg-emerald-400/20 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-24 left-8 h-48 w-48 rounded-full bg-blue-500/14 blur-3xl" />
+    <main className="min-h-screen overflow-x-hidden bg-[#020817] text-white">
+      <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.24),transparent_25rem),radial-gradient(circle_at_top_right,rgba(59,130,246,0.22),transparent_32rem),radial-gradient(circle_at_50%_0%,rgba(20,184,166,0.16),transparent_38rem),linear-gradient(180deg,#071827_0%,#06111f_42%,#020617_100%)]" />
 
-          <div className="relative grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px] xl:items-end">
+      <section className="relative mx-auto flex w-full max-w-[430px] flex-col gap-4 px-3 pb-32 pt-4 sm:max-w-7xl sm:gap-6 sm:px-8 sm:pb-16 sm:pt-6 lg:px-10">
+        <header className="relative overflow-hidden rounded-[26px] border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(9,25,47,0.98),rgba(4,16,31,0.98)_48%,rgba(2,6,23,0.98))] p-4 shadow-[0_26px_100px_rgba(0,0,0,0.55)] sm:rounded-[34px] sm:p-7 lg:p-8">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_24%,rgba(16,185,129,0.24),transparent_18rem),radial-gradient(circle_at_85%_0%,rgba(59,130,246,0.26),transparent_24rem)]" />
+          <div className="pointer-events-none absolute right-0 top-0 hidden h-full w-[48%] opacity-80 sm:block">
+            <div className="absolute right-6 top-6 h-1 w-56 rotate-[-12deg] rounded-full bg-blue-300/60 blur-[2px]" />
+            <div className="absolute right-16 top-12 h-1 w-72 rotate-[-12deg] rounded-full bg-cyan-300/40 blur-[3px]" />
+            <div className="absolute right-4 top-20 h-1 w-64 rotate-[-12deg] rounded-full bg-emerald-300/40 blur-[3px]" />
+            <div className="absolute bottom-0 right-0 h-28 w-full bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.34),transparent_70%)]" />
+          </div>
+          <div className="pointer-events-none absolute -right-20 -top-20 h-52 w-52 rounded-full bg-emerald-400/20 blur-3xl" />
+          <div className="pointer-events-none absolute -bottom-24 left-8 h-52 w-52 rounded-full bg-blue-500/14 blur-3xl" />
+
+          <div className="relative grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-end">
             <div className="min-w-0">
-              <p className="mb-2 text-[0.68rem] font-bold uppercase tracking-[0.24em] text-emerald-400 sm:text-xs sm:tracking-[0.28em]">
+              <p className="mb-2 text-[0.68rem] font-black uppercase tracking-[0.26em] text-emerald-400 sm:text-xs sm:tracking-[0.3em]">
                 Pro Football Intel Results
               </p>
 
-              <h1 className="max-w-none text-[1.72rem] font-black leading-[1.06] tracking-[-0.04em] text-white sm:text-[2.1rem] md:text-[2.35rem] lg:text-[2.55rem] xl:whitespace-nowrap">
-                Prediction results dashboard.
+              <h1 className="max-w-none text-[1.82rem] font-black leading-[1.05] tracking-[-0.045em] text-white sm:text-[2.25rem] md:text-[2.7rem] lg:text-[3rem] xl:whitespace-nowrap">
+                Prediction results dashboard
+                <span className="text-emerald-400">.</span>
               </h1>
 
-              <p className="mt-2.5 max-w-3xl text-sm leading-6 text-slate-300/85 sm:mt-3 sm:text-base sm:leading-7">
+              <p className="mt-3 max-w-3xl text-sm leading-6 text-slate-300/90 sm:text-base sm:leading-7">
                 Public read-only dashboard tracking saved predictions, settled
                 outcomes, league performance and verified Pro Football Intel
                 accuracy.
               </p>
+
+              <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                <HeroPill label="Accuracy" value={overallAccuracy} />
+                <HeroPill label="Settled" value={settledPicks} />
+                <HeroPill label="Won" value={winningPicks} />
+                <HeroPill label="Lost" value={losingPicks} />
+              </div>
             </div>
 
             <form
               method="GET"
-              className="rounded-2xl border border-emerald-400/15 bg-white/[0.07] p-3 shadow-inner shadow-white/5 backdrop-blur xl:max-w-[300px]"
+              className="rounded-2xl border border-emerald-400/20 bg-white/[0.075] p-3.5 shadow-inner shadow-white/5 backdrop-blur xl:max-w-[320px]"
             >
               <label
                 htmlFor="season"
-                className="mb-2 block text-[0.65rem] font-bold uppercase tracking-[0.22em] text-emerald-300 sm:text-xs"
+                className="mb-2 block text-[0.65rem] font-black uppercase tracking-[0.22em] text-emerald-300 sm:text-xs"
               >
                 Season
               </label>
@@ -84,7 +103,7 @@ export default async function Home({ searchParams }: PageProps) {
 
                 <button
                   type="submit"
-                  className="rounded-xl border border-emerald-300/25 bg-emerald-400/15 px-3 py-2 text-xs font-black uppercase tracking-wide text-emerald-200 transition hover:border-emerald-300/50 hover:bg-emerald-400/25"
+                  className="rounded-xl border border-emerald-300/25 bg-emerald-400/20 px-3 py-2 text-xs font-black uppercase tracking-wide text-emerald-100 transition hover:border-emerald-300/50 hover:bg-emerald-400/30"
                 >
                   View
                 </button>
@@ -120,41 +139,11 @@ export default async function Home({ searchParams }: PageProps) {
             <LeagueRankingTable leagues={data.leagueStats} />
           </div>
 
-          <div className="relative overflow-hidden rounded-[26px] border border-emerald-400/25 bg-[linear-gradient(135deg,rgba(7,47,37,0.98),rgba(7,28,45,0.98))] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.34)] sm:rounded-3xl sm:p-6">
-            <div className="pointer-events-none absolute -right-14 -top-14 h-44 w-44 rounded-full bg-emerald-300/25 blur-3xl" />
-            <div className="pointer-events-none absolute -bottom-14 left-2 h-36 w-36 rounded-full bg-cyan-400/10 blur-3xl" />
-
-            <div className="relative">
-              <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-emerald-300 sm:text-sm sm:tracking-[0.25em]">
-                Strongest Pick
-              </p>
-
-              <div className="mt-3 grid grid-cols-[1fr_auto] items-start gap-4 sm:mt-4 sm:block">
-                <div>
-                  <h2 className="text-[1.65rem] font-black leading-[1.08] tracking-tight sm:text-2xl">
-                    Highest-confidence picks
-                  </h2>
-
-                  <p className="mt-2 max-w-[13rem] text-sm leading-6 text-slate-300 sm:mt-3 sm:max-w-none">
-                    {data.strongestPick.note}
-                  </p>
-                </div>
-
-                <p className="text-[2.85rem] font-black leading-none tracking-tight text-emerald-300 sm:mt-6 sm:text-5xl">
-                  {data.strongestPick.accuracy}
-                </p>
-              </div>
-
-              <div className="mt-4 rounded-2xl border border-emerald-400/15 bg-[#05111d]/75 px-3.5 py-3 shadow-inner shadow-white/5 sm:mt-6 sm:p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <p className="text-sm font-medium text-slate-400">Record</p>
-                  <p className="text-lg font-black text-white sm:text-xl">
-                    {data.strongestPick.record}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
+          <StrongestPickPanel
+            accuracy={data.strongestPick.accuracy}
+            record={data.strongestPick.record}
+            note={data.strongestPick.note}
+          />
         </section>
 
         <section className="rounded-[26px] border border-white/10 bg-[#0a1b2e]/90 p-4 shadow-[0_18px_60px_rgba(0,0,0,0.28)] sm:rounded-3xl sm:p-6">
@@ -223,11 +212,24 @@ export default async function Home({ searchParams }: PageProps) {
                 </p>
               </div>
 
-              <div className="h-3 overflow-hidden rounded-full bg-white/10">
+              <div className="relative h-4 overflow-hidden rounded-full bg-white/10">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-cyan-400"
-                  style={{ width: overallAccuracy }}
+                  className="h-full rounded-l-full bg-gradient-to-r from-emerald-400 to-cyan-400"
+                  style={{ width: `${accuracyNumber}%` }}
                 />
+                <div
+                  className="absolute right-0 top-0 h-full rounded-r-full bg-gradient-to-r from-red-500/70 to-red-400/40"
+                  style={{ width: `${lossPercentage}%` }}
+                />
+                <div
+                  className="absolute top-0 h-full w-px bg-white/50"
+                  style={{ left: `${accuracyNumber}%` }}
+                />
+              </div>
+
+              <div className="mt-2 flex items-center justify-between text-[0.68rem] font-black uppercase tracking-[0.16em]">
+                <span className="text-emerald-300">{overallAccuracy} won</span>
+                <span className="text-red-300">{lossPercentage}% lost</span>
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3">
@@ -254,6 +256,15 @@ export default async function Home({ searchParams }: PageProps) {
                 When the new season begins, saved and settled predictions in
                 Admin will automatically feed this public results dashboard.
               </p>
+
+              <div className="mt-4 rounded-xl border border-blue-300/15 bg-black/20 p-3">
+                <p className="text-xs font-semibold text-slate-400">
+                  Prepared leagues
+                </p>
+                <p className="mt-1 text-2xl font-black text-blue-200">
+                  {data.leagueStats.length}
+                </p>
+              </div>
             </div>
           </div>
         </section>
@@ -366,6 +377,17 @@ export default async function Home({ searchParams }: PageProps) {
   );
 }
 
+function HeroPill({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-full border border-white/10 bg-white/[0.06] px-3 py-2 backdrop-blur">
+      <p className="text-[0.62rem] font-black uppercase tracking-[0.16em] text-slate-500">
+        {label}
+      </p>
+      <p className="text-sm font-black text-white">{value}</p>
+    </div>
+  );
+}
+
 function MetricCard({
   label,
   value,
@@ -376,38 +398,38 @@ function MetricCard({
     tone === "emerald"
       ? {
           icon: "✓",
-          border: "border-emerald-400/20",
-          glow: "from-emerald-400/20",
-          iconClass: "bg-emerald-400/15 text-emerald-300",
-          wave: "from-emerald-400/40",
+          border: "border-emerald-400/25",
+          glow: "from-emerald-400/24",
+          iconClass: "bg-emerald-400/18 text-emerald-300",
+          wave: "from-emerald-400/45",
         }
       : tone === "red"
         ? {
             icon: "×",
-            border: "border-red-400/20",
-            glow: "from-red-400/16",
-            iconClass: "bg-red-400/15 text-red-300",
-            wave: "from-red-400/40",
+            border: "border-red-400/25",
+            glow: "from-red-400/18",
+            iconClass: "bg-red-400/18 text-red-300",
+            wave: "from-red-400/45",
           }
         : {
             icon: "!",
-            border: "border-amber-400/20",
-            glow: "from-amber-400/16",
-            iconClass: "bg-amber-400/15 text-amber-300",
-            wave: "from-amber-400/40",
+            border: "border-amber-400/25",
+            glow: "from-amber-400/18",
+            iconClass: "bg-amber-400/18 text-amber-300",
+            wave: "from-amber-400/45",
           };
 
   return (
     <div
-      className={`group relative overflow-hidden rounded-[22px] border ${config.border} bg-[linear-gradient(135deg,rgba(10,27,46,0.98),rgba(6,19,32,0.96))] p-3.5 shadow-[0_14px_42px_rgba(0,0,0,0.25)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/30 sm:rounded-3xl sm:p-6`}
+      className={`group relative overflow-hidden rounded-[22px] border ${config.border} bg-[linear-gradient(135deg,rgba(10,27,46,0.98),rgba(6,19,32,0.96))] p-3.5 shadow-[0_14px_42px_rgba(0,0,0,0.25)] transition duration-200 hover:-translate-y-0.5 hover:border-emerald-400/35 sm:rounded-3xl sm:p-6`}
     >
       <div
-        className={`pointer-events-none absolute -bottom-8 left-0 h-14 w-full bg-gradient-to-r ${config.wave} to-transparent opacity-30 blur-2xl`}
+        className={`pointer-events-none absolute -bottom-8 left-0 h-16 w-full bg-gradient-to-r ${config.wave} to-transparent opacity-35 blur-2xl`}
       />
 
       <div className="relative flex items-start gap-3">
         <span
-          className={`hidden h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl font-black sm:flex ${config.iconClass}`}
+          className={`hidden h-12 w-12 shrink-0 items-center justify-center rounded-full text-2xl font-black sm:flex ${config.iconClass}`}
         >
           {config.icon}
         </span>
@@ -452,7 +474,7 @@ function LeagueRankingTable({ leagues }: { leagues: LeagueStat[] }) {
             className="grid gap-3 bg-[#061320]/90 px-4 py-4 text-sm transition hover:bg-[#071b2d] md:grid-cols-[0.6fr_1.5fr_0.7fr_0.7fr_0.9fr] md:items-center"
           >
             <div className="flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-sm font-black text-emerald-300">
+              <span className={getRankClassName(league.rank)}>
                 #{league.rank}
               </span>
 
@@ -477,7 +499,7 @@ function LeagueRankingTable({ leagues }: { leagues: LeagueStat[] }) {
             </p>
 
             <div className="flex items-center justify-between gap-3 md:block">
-              <p className="text-3xl font-black leading-none text-white md:text-xl md:text-emerald-300">
+              <p className={getAccuracyClassName(league.accuracy)}>
                 {league.accuracy}
               </p>
 
@@ -487,6 +509,67 @@ function LeagueRankingTable({ leagues }: { leagues: LeagueStat[] }) {
             </div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function StrongestPickPanel({
+  accuracy,
+  record,
+  note,
+}: {
+  accuracy: string;
+  record: string;
+  note: string;
+}) {
+  const accuracyNumber = getPercentageNumber(accuracy);
+
+  return (
+    <div className="relative overflow-hidden rounded-[26px] border border-emerald-400/25 bg-[linear-gradient(135deg,rgba(7,47,37,0.98),rgba(7,28,45,0.98))] p-4 shadow-[0_18px_60px_rgba(0,0,0,0.34)] sm:rounded-3xl sm:p-6">
+      <div className="pointer-events-none absolute -right-14 -top-14 h-44 w-44 rounded-full bg-emerald-300/25 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-14 left-2 h-36 w-36 rounded-full bg-cyan-400/10 blur-3xl" />
+
+      <div className="relative">
+        <p className="text-[0.68rem] font-bold uppercase tracking-[0.22em] text-emerald-300 sm:text-sm sm:tracking-[0.25em]">
+          Strongest Pick
+        </p>
+
+        <div className="mt-3 grid grid-cols-[1fr_auto] items-start gap-4 sm:mt-4">
+          <div>
+            <h2 className="text-[1.65rem] font-black leading-[1.08] tracking-tight sm:text-2xl">
+              Highest-confidence picks
+            </h2>
+
+            <p className="mt-2 max-w-[13rem] text-sm leading-6 text-slate-300 sm:mt-3">
+              {note}
+            </p>
+          </div>
+
+          <div
+            className="relative hidden h-28 w-28 shrink-0 items-center justify-center rounded-full sm:flex"
+            style={{
+              background: `conic-gradient(#34d399 ${accuracyNumber}%, rgba(255,255,255,0.1) 0)`,
+            }}
+          >
+            <div className="flex h-[84px] w-[84px] items-center justify-center rounded-full bg-[#061320] shadow-inner shadow-black/40">
+              <span className="text-2xl font-black text-white">{accuracy}</span>
+            </div>
+          </div>
+
+          <p className="text-[2.85rem] font-black leading-none tracking-tight text-emerald-300 sm:hidden">
+            {accuracy}
+          </p>
+        </div>
+
+        <div className="mt-4 rounded-2xl border border-emerald-400/15 bg-[#05111d]/75 px-3.5 py-3 shadow-inner shadow-white/5 sm:mt-6 sm:p-4">
+          <div className="flex items-center justify-between gap-4">
+            <p className="text-sm font-medium text-slate-400">Record</p>
+            <p className="text-lg font-black text-white sm:text-xl">
+              {record}
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -621,4 +704,44 @@ function SectionHeader({
       ) : null}
     </div>
   );
+}
+
+function getPercentageNumber(value: string): number {
+  const parsed = Number.parseInt(value.replace("%", ""), 10);
+
+  if (Number.isNaN(parsed)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.min(100, parsed));
+}
+
+function getRankClassName(rank: number): string {
+  if (rank === 1) {
+    return "inline-flex h-9 w-9 items-center justify-center rounded-full border border-amber-300/30 bg-amber-300/15 text-sm font-black text-amber-200";
+  }
+
+  if (rank === 2) {
+    return "inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-300/25 bg-slate-300/10 text-sm font-black text-slate-200";
+  }
+
+  if (rank === 3) {
+    return "inline-flex h-9 w-9 items-center justify-center rounded-full border border-orange-300/25 bg-orange-300/10 text-sm font-black text-orange-200";
+  }
+
+  return "inline-flex h-9 w-9 items-center justify-center rounded-full border border-emerald-400/20 bg-emerald-400/10 text-sm font-black text-emerald-300";
+}
+
+function getAccuracyClassName(accuracy: string): string {
+  const value = getPercentageNumber(accuracy);
+
+  if (value >= 70) {
+    return "text-3xl font-black leading-none text-emerald-300 md:text-xl";
+  }
+
+  if (value >= 50) {
+    return "text-3xl font-black leading-none text-amber-300 md:text-xl";
+  }
+
+  return "text-3xl font-black leading-none text-red-300 md:text-xl";
 }
