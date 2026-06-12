@@ -13,6 +13,22 @@ type PageProps = {
   }>;
 };
 
+const footerLinks = [
+  { label: "Home", href: "https://profbint.com" },
+  { label: "Predictions", href: "https://profbint.com/predictions" },
+  { label: "Privacy Policy", href: "https://profbint.com/privacy-policy" },
+  { label: "Terms of Service", href: "https://profbint.com/terms-of-service" },
+  { label: "Refund Policy", href: "https://profbint.com/refund-policy" },
+  {
+    label: "Responsible Gambling",
+    href: "https://profbint.com/responsible-gambling",
+  },
+  {
+    label: "Legal & Disclaimer",
+    href: "https://profbint.com/legal-disclaimer",
+  },
+];
+
 export default async function Home({ searchParams }: PageProps) {
   const params = await searchParams;
   const data = await getResultsDashboardData(params?.season);
@@ -27,19 +43,24 @@ export default async function Home({ searchParams }: PageProps) {
   const losingPicks =
     data.summaryStats.find((item) => item.label === "Lost")?.value ?? "0";
 
-  const pendingPicks =
-    data.summaryStats.find((item) => item.label === "Pending")?.value ?? "0";
-
   const settledPicks = data.seasonInsights[0]?.value ?? "0";
   const accuracyNumber = getPercentageNumber(overallAccuracy);
   const lossPercentage = Math.max(0, 100 - accuracyNumber);
-  const topLeague = data.leagueStats.find((league) => league.settled > 0);
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-[#020817] text-white">
       <div className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.24),transparent_25rem),radial-gradient(circle_at_top_right,rgba(59,130,246,0.22),transparent_32rem),radial-gradient(circle_at_50%_0%,rgba(20,184,166,0.16),transparent_38rem),linear-gradient(180deg,#071827_0%,#06111f_42%,#020617_100%)]" />
 
       <section className="relative mx-auto flex w-full max-w-[430px] flex-col gap-4 px-3 pb-32 pt-4 sm:max-w-7xl sm:gap-6 sm:px-8 sm:pb-16 sm:pt-6 lg:px-10">
+        <div className="flex justify-end">
+          <a
+            href="https://profbint.com"
+            className="inline-flex items-center justify-center rounded-full border border-emerald-400/25 bg-emerald-400/10 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-emerald-200 transition hover:border-emerald-300/50 hover:bg-emerald-400/20"
+          >
+            ← Main Site
+          </a>
+        </div>
+
         <header className="relative overflow-hidden rounded-[26px] border border-emerald-400/20 bg-[linear-gradient(135deg,rgba(9,25,47,0.98),rgba(4,16,31,0.98)_48%,rgba(2,6,23,0.98))] p-4 shadow-[0_26px_100px_rgba(0,0,0,0.55)] sm:rounded-[34px] sm:p-7 lg:p-8">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_80%_24%,rgba(16,185,129,0.24),transparent_18rem),radial-gradient(circle_at_85%_0%,rgba(59,130,246,0.26),transparent_24rem)]" />
           <div className="pointer-events-none absolute right-0 top-0 hidden h-full w-[48%] opacity-80 sm:block">
@@ -367,10 +388,22 @@ export default async function Home({ searchParams }: PageProps) {
             Pro Football Intel Results
           </p>
 
-          <p className="mt-2 text-sm leading-6 text-slate-400">
+          <p className="mx-auto mt-2 max-w-2xl text-sm leading-6 text-slate-400">
             Public read-only performance reporting. Results update
             automatically from verified admin-settled predictions.
           </p>
+
+          <nav className="mt-5 flex flex-wrap items-center justify-center gap-x-5 gap-y-3 border-t border-white/10 pt-5">
+            {footerLinks.map((link) => (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-sm font-semibold text-slate-400 transition hover:text-emerald-300"
+              >
+                {link.label}
+              </a>
+            ))}
+          </nav>
         </footer>
       </section>
     </main>
