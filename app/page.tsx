@@ -16,16 +16,16 @@ type PageProps = {
 const footerLinks = [
   { label: "Home", href: "https://profbint.com" },
   { label: "Predictions", href: "https://profbint.com/predictions" },
-  { label: "Privacy Policy", href: "https://profbint.com/privacy-policy" },
-  { label: "Terms of Service", href: "https://profbint.com/terms-of-service" },
-  { label: "Refund Policy", href: "https://profbint.com/refund-policy" },
+  { label: "Privacy Policy", href: "https://profbint.com/privacy" },
+  { label: "Terms of Service", href: "https://profbint.com/terms" },
+  { label: "Refund Policy", href: "https://profbint.com/refunds" },
   {
     label: "Responsible Gambling",
     href: "https://profbint.com/responsible-gambling",
   },
   {
     label: "Legal & Disclaimer",
-    href: "https://profbint.com/legal-disclaimer",
+    href: "https://profbint.com/legal",
   },
 ];
 
