@@ -15,7 +15,7 @@ type PageProps = {
 
 const footerLinks = [
   { label: "Home", href: "https://profbint.com" },
-  { label: "Predictions", href: "https://profbint.com/predictions" },
+  { label: "Predictions", href: "https://predictions.profbint.com" },
   { label: "Privacy Policy", href: "https://profbint.com/privacy" },
   { label: "Terms of Service", href: "https://profbint.com/terms" },
   { label: "Refund Policy", href: "https://profbint.com/refunds" },
