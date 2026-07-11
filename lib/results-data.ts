@@ -58,8 +58,7 @@ type PredictionHistoryRow = {
   updatedAt: Date;
 };
 
-const FALLBACK_SEASON = "2025-26";
-const LEGACY_SEASON_TO_HIDE = "2025/26";
+const CURRENT_SEASON = "2026-27";
 
 const TRACKED_LEAGUES = [
   "Premier League",
@@ -72,31 +71,12 @@ const TRACKED_LEAGUES = [
 ];
 
 export async function getResultsDashboardData(
-  requestedSeason?: string,
+  _requestedSeason?: string,
 ): Promise<ResultsDashboardData> {
   try {
-    const seasonRows = await prisma.predictionHistory.findMany({
-      select: {
-        season: true,
-      },
-      distinct: ["season"],
-      orderBy: {
-        season: "desc",
-      },
-    });
-
-    const seasons = seasonRows
-      .map((item) => item.season)
-      .filter((season) => season && season !== LEGACY_SEASON_TO_HIDE);
-
-    const selectedSeason =
-      requestedSeason && seasons.includes(requestedSeason)
-        ? requestedSeason
-        : seasons[0] ?? FALLBACK_SEASON;
-
     const rows = await prisma.predictionHistory.findMany({
       where: {
-        season: selectedSeason,
+        season: CURRENT_SEASON,
       },
       select: {
         leagueName: true,
@@ -128,8 +108,8 @@ export async function getResultsDashboardData(
     const strongestPick = buildStrongestPickStat(rows);
 
     return {
-      selectedSeason,
-      seasons: seasons.length > 0 ? seasons : [selectedSeason],
+      selectedSeason: CURRENT_SEASON,
+      seasons: [CURRENT_SEASON],
       summaryStats: buildSummaryStats(rows),
       leagueStats,
       latestResults: buildLatestResults(rows),
@@ -138,7 +118,6 @@ export async function getResultsDashboardData(
     };
   } catch (error) {
     console.error("Failed to load results dashboard data:", error);
-
     return getEmptyDashboardData();
   }
 }
@@ -148,12 +127,11 @@ function buildSummaryStats(rows: PredictionHistoryRow[]): SummaryStat[] {
   const won = completed.filter((row) => row.firstChoiceResult === "WON").length;
   const lost = completed.filter((row) => row.firstChoiceResult === "LOST").length;
   const pending = rows.filter((row) => row.status === "PENDING").length;
-  const accuracy = getAccuracy(won, completed.length);
 
   return [
     {
       label: "Overall Accuracy",
-      value: accuracy,
+      value: getAccuracy(won, completed.length),
       detail: `${won} won / ${lost} lost`,
       tone: "emerald",
     },
@@ -172,7 +150,7 @@ function buildSummaryStats(rows: PredictionHistoryRow[]): SummaryStat[] {
     {
       label: "Pending",
       value: String(pending),
-      detail: "Awaiting scores",
+      detail: "Awaiting settlement",
       tone: "amber",
     },
   ];
@@ -181,12 +159,7 @@ function buildSummaryStats(rows: PredictionHistoryRow[]): SummaryStat[] {
 function buildLeagueStats(rows: PredictionHistoryRow[]): LeagueStat[] {
   const leagueMap = new Map<
     string,
-    {
-      won: number;
-      lost: number;
-      pending: number;
-      settled: number;
-    }
+    { won: number; lost: number; pending: number; settled: number }
   >();
 
   TRACKED_LEAGUES.forEach((league) => {
@@ -239,18 +212,21 @@ function buildLeagueStats(rows: PredictionHistoryRow[]): LeagueStat[] {
           : `${record.pending} pending`,
     }))
     .sort((a, b) => {
-      const aAccuracy = Number.parseInt(a.accuracy, 10);
-      const bAccuracy = Number.parseInt(b.accuracy, 10);
+      const accuracyDifference =
+        parseAccuracy(b.accuracy) - parseAccuracy(a.accuracy);
 
-      if (bAccuracy !== aAccuracy) {
-        return bAccuracy - aAccuracy;
+      if (accuracyDifference !== 0) {
+        return accuracyDifference;
       }
 
       if (b.settled !== a.settled) {
         return b.settled - a.settled;
       }
 
-      return TRACKED_LEAGUES.indexOf(a.league) - TRACKED_LEAGUES.indexOf(b.league);
+      return (
+        TRACKED_LEAGUES.indexOf(a.league) -
+        TRACKED_LEAGUES.indexOf(b.league)
+      );
     })
     .map((league, index) => ({
       ...league,
@@ -288,15 +264,14 @@ function buildStrongestPickStat(rows: PredictionHistoryRow[]): StrongestPickStat
   ).length;
 
   const losses = completed.length - wins;
-  const accuracy = getAccuracy(wins, completed.length);
 
   return {
-    accuracy,
+    accuracy: getAccuracy(wins, completed.length),
     record: `${wins}W / ${losses}L`,
     note:
       completed.length > 0
-        ? "Live accuracy for strongest confidence picks."
-        : "Strongest pick accuracy will calculate once matches are settled.",
+        ? "Verified accuracy for highest-confidence selections."
+        : "Accuracy will calculate automatically after settled results arrive.",
   };
 }
 
@@ -308,17 +283,14 @@ function buildSeasonInsights(
   const completed = getCompletedRows(rows);
   const wins = completed.filter((row) => row.firstChoiceResult === "WON").length;
   const losses = completed.filter((row) => row.firstChoiceResult === "LOST").length;
+  const settledLeagues = leagueStats.filter((league) => league.settled > 0);
+  const bestLeague = settledLeagues[0];
 
-  const settledLeagueStats = leagueStats.filter((league) => league.settled > 0);
+  const lowestLeague = [...settledLeagues].sort((a, b) => {
+    const difference = parseAccuracy(a.accuracy) - parseAccuracy(b.accuracy);
 
-  const bestLeague = settledLeagueStats[0];
-
-  const worstLeague = [...settledLeagueStats].sort((a, b) => {
-    const aAccuracy = Number.parseInt(a.accuracy, 10);
-    const bAccuracy = Number.parseInt(b.accuracy, 10);
-
-    if (aAccuracy !== bAccuracy) {
-      return aAccuracy - bAccuracy;
+    if (difference !== 0) {
+      return difference;
     }
 
     return b.settled - a.settled;
@@ -337,17 +309,17 @@ function buildSeasonInsights(
     },
     {
       label: "Best League",
-      value: bestLeague ? bestLeague.league : "N/A",
+      value: bestLeague?.league ?? "Awaiting data",
       detail: bestLeague
         ? `${bestLeague.accuracy} from ${bestLeague.settled} settled`
-        : "No settled league data yet",
+        : "Updates automatically",
     },
     {
       label: "Lowest League",
-      value: worstLeague ? worstLeague.league : "N/A",
-      detail: worstLeague
-        ? `${worstLeague.accuracy} from ${worstLeague.settled} settled`
-        : "No settled league data yet",
+      value: lowestLeague?.league ?? "Awaiting data",
+      detail: lowestLeague
+        ? `${lowestLeague.accuracy} from ${lowestLeague.settled} settled`
+        : "Updates automatically",
     },
     {
       label: "Strongest Pick",
@@ -357,7 +329,7 @@ function buildSeasonInsights(
     {
       label: "Tracked Leagues",
       value: String(TRACKED_LEAGUES.length),
-      detail: "Competitions prepared for the season",
+      detail: "Competitions prepared for 2026/27",
     },
   ];
 }
@@ -390,6 +362,10 @@ function getDisplayResult(row: PredictionHistoryRow): ResultStatus {
   return "PENDING";
 }
 
+function parseAccuracy(value: string): number {
+  return Number.parseInt(value.replace("%", ""), 10) || 0;
+}
+
 function getAccuracy(wins: number, completed: number): string {
   if (completed === 0) {
     return "0%";
@@ -399,7 +375,7 @@ function getAccuracy(wins: number, completed: number): string {
 }
 
 function getEmptyDashboardData(): ResultsDashboardData {
-  const emptyLeagueStats = TRACKED_LEAGUES.map((league, index) => ({
+  const leagueStats = TRACKED_LEAGUES.map((league, index) => ({
     rank: index + 1,
     league,
     accuracy: "0%",
@@ -411,40 +387,15 @@ function getEmptyDashboardData(): ResultsDashboardData {
   }));
 
   return {
-    selectedSeason: FALLBACK_SEASON,
-    seasons: [FALLBACK_SEASON],
-    summaryStats: [
-      {
-        label: "Overall Accuracy",
-        value: "0%",
-        detail: "0 won / 0 lost",
-        tone: "emerald",
-      },
-      {
-        label: "Won",
-        value: "0",
-        detail: "Settled winning picks",
-        tone: "emerald",
-      },
-      {
-        label: "Lost",
-        value: "0",
-        detail: "Settled losing picks",
-        tone: "red",
-      },
-      {
-        label: "Pending",
-        value: "0",
-        detail: "Awaiting scores",
-        tone: "amber",
-      },
-    ],
-    leagueStats: emptyLeagueStats,
+    selectedSeason: CURRENT_SEASON,
+    seasons: [CURRENT_SEASON],
+    summaryStats: buildSummaryStats([]),
+    leagueStats,
     latestResults: [],
     strongestPick: {
       accuracy: "0%",
       record: "0W / 0L",
-      note: "Strongest pick accuracy will calculate once matches are settled.",
+      note: "Accuracy will calculate automatically after settled results arrive.",
     },
     seasonInsights: [
       {
@@ -459,13 +410,13 @@ function getEmptyDashboardData(): ResultsDashboardData {
       },
       {
         label: "Best League",
-        value: "N/A",
-        detail: "No settled league data yet",
+        value: "Awaiting data",
+        detail: "Updates automatically",
       },
       {
         label: "Lowest League",
-        value: "N/A",
-        detail: "No settled league data yet",
+        value: "Awaiting data",
+        detail: "Updates automatically",
       },
       {
         label: "Strongest Pick",
@@ -475,7 +426,7 @@ function getEmptyDashboardData(): ResultsDashboardData {
       {
         label: "Tracked Leagues",
         value: String(TRACKED_LEAGUES.length),
-        detail: "Competitions prepared for the season",
+        detail: "Competitions prepared for 2026/27",
       },
     ],
   };
