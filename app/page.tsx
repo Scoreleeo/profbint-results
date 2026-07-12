@@ -53,20 +53,41 @@ export default async function Home({ searchParams }: PageProps) {
 
       <section className="relative mx-auto flex w-full max-w-[430px] flex-col gap-4 px-3 pb-28 pt-4 sm:max-w-7xl sm:gap-6 sm:px-8 sm:pb-16 sm:pt-6 lg:px-10">
         <nav className="flex flex-wrap items-center justify-end gap-2">
-          <a
-            href="https://profbint.com"
-            className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-slate-300 transition hover:border-[#d6ad55]/40 hover:text-[#f0cf7a]"
-          >
-            ← Main Site
-          </a>
+  <a
+    href="https://results.profbint.com"
+    className="rounded-full border border-[#d6ad55]/40 bg-[#d6ad55]/15 px-4 py-2 text-xs font-black text-[#f0cf7a] transition hover:bg-[#d6ad55]/25"
+  >
+    Home
+  </a>
 
-          <a
-            href="https://predictions.profbint.com"
-            className="rounded-full border border-[#d6ad55]/40 bg-[#d6ad55]/15 px-4 py-2 text-xs font-black uppercase tracking-[0.14em] text-[#f0cf7a] transition hover:bg-[#d6ad55]/25"
-          >
-            View Predictions
-          </a>
-        </nav>
+  <a
+    href="https://predictions.profbint.com"
+    className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-black text-slate-300 transition hover:border-[#d6ad55]/40 hover:text-[#f0cf7a]"
+  >
+    Predictions
+  </a>
+
+  <a
+    href="https://results.profbint.com"
+    className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-black text-slate-300 transition hover:border-[#d6ad55]/40 hover:text-[#f0cf7a]"
+  >
+    Results
+  </a>
+
+  <a
+    href="https://players.profbint.com"
+    className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-black text-slate-300 transition hover:border-[#d6ad55]/40 hover:text-[#f0cf7a]"
+  >
+    Players
+  </a>
+
+  <a
+    href="https://profbint.com"
+    className="rounded-full border border-white/10 bg-white/[0.05] px-4 py-2 text-xs font-black text-slate-300 transition hover:border-[#d6ad55]/40 hover:text-[#f0cf7a]"
+  >
+    Pro Football Intel
+  </a>
+</nav>
 
         <header className="relative overflow-hidden rounded-[24px] border border-[#d6ad55]/20 bg-[linear-gradient(135deg,rgba(12,32,56,0.98),rgba(6,18,35,0.99)_55%,rgba(3,8,20,0.99))] p-4 shadow-[0_24px_80px_rgba(0,0,0,0.48)] sm:rounded-[30px] sm:p-6">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_82%_18%,rgba(214,173,85,0.2),transparent_17rem),radial-gradient(circle_at_90%_0%,rgba(59,130,246,0.2),transparent_24rem)]" />
